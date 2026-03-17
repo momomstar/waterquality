@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Water Quality System - ระบบติดตามคุณภาพน้ำ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+
+    <style>
+        :root {
+            --brand: #2c5aa0;
+            --brand2: #1e4180;
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --border: #e6eaf2;
+            --text: #111827;
+            --muted: #6b7280;
+            --shadow: 0 14px 36px rgba(15, 23, 42, .10);
+            --shadow2: 0 10px 24px rgba(15, 23, 42, .08);
+            --radius: 18px;
+
+            --pass: #16a34a;
+            --near: #f59e0b;
+            --fail: #ef4444;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background:
+                radial-gradient(1100px 520px at 10% -10%, rgba(44, 90, 160, .12), transparent 55%),
+                radial-gradient(900px 500px at 110% 10%, rgba(30, 65, 128, .10), transparent 60%),
+                var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ✅ Hero */
+        .hero {
+            margin: 1.25rem auto 1.25rem;
+            border-radius: var(--radius);
+            padding: 1.35rem 1.35rem;
+            background: linear-gradient(135deg, rgba(44, 90, 160, .18), rgba(44, 90, 160, .06));
+            border: 1px solid rgba(44, 90, 160, .18);
+            box-shadow: var(--shadow);
+        }
+
+        .hero h1 {
+            font-size: 1.8rem;
+            font-weight: 950;
+            margin: 0 0 .25rem 0;
+            color: var(--brand);
+            letter-spacing: -.2px;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            flex-wrap: wrap;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: .6rem;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            border-radius: 999px;
+            padding: .35rem .75rem;
+            font-weight: 950;
+            font-size: .85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            border: 1px solid rgba(0, 0, 0, .06);
+            white-space: nowrap;
+            background: #fff;
+            color: var(--muted);
+        }
+
+        .pill-live {
+            background: rgba(16, 185, 129, .10);
+            color: #065f46;
+            border-color: rgba(16, 185, 129, .20);
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 6px rgba(16, 185, 129, .15);
+            animation: pulse 1.6s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1
+            }
+
+            50% {
+                transform: scale(1.08);
+                opacity: .7
+            }
+        }
+
+        /* ✅ Buttons */
+        .btn {
+            border-radius: 14px;
+            font-weight: 950;
+            padding: .58rem .95rem;
+            border: none;
+            transition: .2s ease;
+        }
+
+        .btn-primary {
+            background: var(--brand);
+            box-shadow: 0 10px 22px rgba(44, 90, 160, .18);
+        }
+
+        .btn-primary:hover {
+            background: var(--brand2);
+        }
+
+        .btn-light {
+            background: #fff;
+            border: 1px solid rgba(44, 90, 160, .18);
+            color: var(--brand);
+            font-weight: 950;
+            border-radius: 14px;
+        }
+
+        .btn-light:hover {
+            background: rgba(44, 90, 160, .06);
+        }
+
+        /* ✅ Stats Cards */
+        .stats-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow2);
+            padding: 1.2rem 1.2rem;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--brand), rgba(44, 90, 160, .35));
+        }
+
+        .stats-card.pass::before {
+            background: linear-gradient(90deg, var(--pass), rgba(22, 163, 74, .35));
+        }
+
+        .stats-card.near::before {
+            background: linear-gradient(90deg, var(--near), rgba(245, 158, 11, .35));
+        }
+
+        .stats-card.fail::before {
+            background: linear-gradient(90deg, var(--fail), rgba(239, 68, 68, .35));
+        }
+
+        .stats-label {
+            color: var(--muted);
+            font-weight: 900;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            font-size: .82rem;
+        }
+
+        .stats-number {
+            font-size: 2.2rem;
+            font-weight: 950;
+            margin: .35rem 0;
+            line-height: 1;
+        }
+
+        .stats-icon {
+            position: absolute;
+            right: 14px;
+            bottom: 10px;
+            font-size: 2.3rem;
+            opacity: .10;
+            color: #111827;
+        }
+
+        /* ✅ Section Title */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 950;
+            margin: 1.25rem 0 .75rem;
+            color: var(--brand);
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+        }
+
+        .section-sub {
+            color: var(--muted);
+            font-weight: 600;
+            margin-top: -.35rem;
+            margin-bottom: .75rem;
+            font-size: .92rem;
+        }
+
+        /* ✅ Pond Cards */
+        .pond-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow2);
+            padding: 1.05rem 1.05rem;
+            height: 100%;
+            transition: .2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pond-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .pond-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: rgba(44, 90, 160, .25);
+        }
+
+        .pond-card.pass::before {
+            background: rgba(22, 163, 74, .55);
+        }
+
+        .pond-card.near::before {
+            background: rgba(245, 158, 11, .60);
+        }
+
+        .pond-card.fail::before {
+            background: rgba(239, 68, 68, .60);
+        }
+
+        .pond-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: .75rem;
+            padding-bottom: .75rem;
+            border-bottom: 1px solid rgba(17, 24, 39, .08);
+            margin-bottom: .85rem;
+        }
+
+        .pond-title {
+            font-size: 1.05rem;
+            font-weight: 950;
+            margin: 0;
+        }
+
+        .pond-location {
+            color: var(--muted);
+            font-weight: 600;
+            font-size: .9rem;
+            margin: 0;
+        }
+
+        .status-badge {
+            border-radius: 999px;
+            padding: .35rem .7rem;
+            font-weight: 950;
+            font-size: .85rem;
+            border: 1px solid rgba(0, 0, 0, .06);
+            white-space: nowrap;
+            background: #fff;
+            color: var(--muted);
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+        }
+
+        .status-badge.pass {
+            background: rgba(22, 163, 74, .10);
+            color: #065f46;
+            border-color: rgba(22, 163, 74, .20);
+        }
+
+        .status-badge.near {
+            background: rgba(245, 158, 11, .12);
+            color: #92400e;
+            border-color: rgba(245, 158, 11, .25);
+        }
+
+        .status-badge.fail {
+            background: rgba(239, 68, 68, .10);
+            color: #991b1b;
+            border-color: rgba(239, 68, 68, .22);
+        }
+
+        /* ✅ Score Circle (สีตามสถานะ) */
+        .score-wrap {
+            display: flex;
+            align-items: center;
+            gap: .9rem;
+            margin: .85rem 0 .65rem;
+        }
+
+        .progress-circle {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background:
+                conic-gradient(var(--ring) 0deg,
+                    var(--ring) calc(var(--score) * 3.6deg),
+                    rgba(148, 163, 184, .25) calc(var(--score) * 3.6deg));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex: 0 0 auto;
+        }
+
+        .progress-circle::before {
+            content: '';
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            background: #fff;
+            position: absolute;
+            box-shadow: inset 0 0 0 1px rgba(17, 24, 39, .06);
+        }
+
+        .progress-circle-inner {
+            position: relative;
+            z-index: 1;
+            font-size: 1.45rem;
+            font-weight: 980;
+            letter-spacing: -.5px;
+            color: #111827;
+        }
+
+        .score-meta .label {
+            color: var(--muted);
+            font-weight: 800;
+            font-size: .9rem;
+        }
+
+        .score-meta .date {
+            color: var(--muted);
+            font-weight: 650;
+            font-size: .86rem;
+        }
+
+        /* ✅ Parameters mini grid */
+        .parameters-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .6rem;
+            margin-top: .75rem;
+        }
+
+        @media (min-width: 992px) {
+            .parameters-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        .parameter-box {
+            background: rgba(44, 90, 160, .06);
+            border: 1px solid rgba(44, 90, 160, .10);
+            padding: .65rem .65rem;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .parameter-value {
+            font-size: 1.12rem;
+            font-weight: 980;
+            margin-bottom: .1rem;
+        }
+
+        .parameter-value.normal {
+            color: var(--pass);
+        }
+
+        .parameter-value.warning {
+            color: var(--near);
+        }
+
+        .parameter-value.danger {
+            color: var(--fail);
+        }
+
+        .parameter-label {
+            font-size: .82rem;
+            color: var(--muted);
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        /* Refresh notice + footer */
+        .refresh-notice {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow2);
+            padding: .95rem 1rem;
+            text-align: center;
+            margin: 1.25rem 0 0;
+            color: var(--muted);
+            font-weight: 650;
+        }
+
+        .footer {
+            margin-top: 1.75rem;
+            background: linear-gradient(180deg, rgba(44, 90, 160, .12), rgba(44, 90, 160, .06));
+            border-top: 1px solid rgba(44, 90, 160, .18);
+            color: #1f2937;
+            padding: 1.4rem 0;
+        }
+
+        .footer h5 {
+            font-weight: 950;
+            color: var(--brand);
+            margin: 0 0 .15rem 0;
+        }
+
+        .footer p {
+            margin: 0;
+            color: var(--muted);
+            font-weight: 650;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.35rem;
+            }
+
+            .stats-number {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-8">
+                    <h1><i class="bi bi-droplet-fill"></i> Water Quality System</h1>
+                    <p>ระบบติดตามและประเมินคุณภาพน้ำแบบ Real-time ด้วย Fuzzy Logic</p>
+
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <span class="pill pill-live"><span class="live-dot"></span> LIVE</span>
+                        <span class="pill"><i class="bi bi-clock"></i> อัปเดตล่าสุด: {{ last_update.strftime('%d/%m/%Y
+                            %H:%M') }} น.</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="top-actions">
+                        <a href="{{ url_for('login') }}" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> เข้าสู่ระบบ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-label">บ่อทั้งหมด</div>
+                    <div class="stats-number">{{ overall_stats.total }}</div>
+                    <i class="bi bi-layers stats-icon"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card pass">
+                    <div class="stats-label">ผ่านมาตรฐาน</div>
+                    <div class="stats-number" style="color:var(--pass)">{{ overall_stats.pass }}</div>
+                    <i class="bi bi-check-circle stats-icon"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card near">
+                    <div class="stats-label">เฝ้าระวัง</div>
+                    <div class="stats-number" style="color:var(--near)">{{ overall_stats.near_limit }}</div>
+                    <i class="bi bi-exclamation-triangle stats-icon"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card fail">
+                    <div class="stats-label">เกินมาตรฐาน</div>
+                    <div class="stats-number" style="color:var(--fail)">{{ overall_stats.fail }}</div>
+                    <i class="bi bi-x-circle stats-icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ponds -->
+        <div class="section-title"><i class="bi bi-grid"></i> ภาพรวมทุกบ่อบำบัด</div>
+        <div class="section-sub">สรุปคะแนน Fuzzy + พารามิเตอร์หลัก (pH, BOD, COD, TSS)</div>
+
+        <div class="row g-3">
+            {% for pond in all_ponds %}
+            {% set card_class = 'fail' %}
+            {% if pond.status == 'Pass' %}{% set card_class = 'pass' %}
+            {% elif pond.status == 'Near Limit' %}{% set card_class = 'near' %}
+            {% endif %}
+
+            <div class="col-md-6 col-lg-4">
+                <div class="pond-card {{ card_class }}">
+
+                    <div class="pond-header">
+                        <div>
+                            <h5 class="pond-title">{{ pond.pond_name }}</h5>
+                            <p class="pond-location"><i class="bi bi-geo-alt"></i> {{ pond.location }}</p>
+                        </div>
+                        <div>
+                            {% if pond.status == 'Pass' %}
+                            <span class="status-badge pass"><i class="bi bi-check-circle"></i> ผ่าน</span>
+                            {% elif pond.status == 'Near Limit' %}
+                            <span class="status-badge near"><i class="bi bi-exclamation-triangle"></i> ระวัง</span>
+                            {% else %}
+                            <span class="status-badge fail"><i class="bi bi-x-circle"></i> เกิน</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Score -->
+                    {% set ring = 'var(--fail)' %}
+                    {% if pond.status == 'Pass' %}{% set ring = 'var(--pass)' %}
+                    {% elif pond.status == 'Near Limit' %}{% set ring = 'var(--near)' %}
+                    {% endif %}
+
+                    <div class="score-wrap">
+                        <div class="progress-circle" style="--score: {{ pond.fuzzy_score }}; --ring: {{ ring }};">
+                            <div class="progress-circle-inner">{{ pond.fuzzy_score }}</div>
+                        </div>
+                        <div class="score-meta">
+                            <div class="label"><i class="bi bi-stars me-1"></i> คะแนนคุณภาพ (Fuzzy)</div>
+                            <div class="date"><i class="bi bi-calendar2-week me-1"></i> {{
+                                pond.sample_date.strftime('%d/%m/%Y %H:%M') }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Parameters -->
+                    <div class="parameters-grid">
+                        {% if pond.pH %}
+                        <div class="parameter-box">
+                            <div
+                                class="parameter-value {% if pond.pH >= 5.5 and pond.pH <= 9.0 %}normal{% else %}danger{% endif %}">
+                                {{ pond.pH }}
+                            </div>
+                            <div class="parameter-label">pH</div>
+                        </div>
+                        {% endif %}
+
+                        {% if pond.BOD %}
+                        <div class="parameter-box">
+                            <div
+                                class="parameter-value {% if pond.BOD <= 20 %}normal{% elif pond.BOD <= 22 %}warning{% else %}danger{% endif %}">
+                                {{ pond.BOD }}
+                            </div>
+                            <div class="parameter-label">BOD<br><small>mg/L</small></div>
+                        </div>
+                        {% endif %}
+
+                        {% if pond.COD %}
+                        <div class="parameter-box">
+                            <div
+                                class="parameter-value {% if pond.COD <= 120 %}normal{% elif pond.COD <= 132 %}warning{% else %}danger{% endif %}">
+                                {{ pond.COD }}
+                            </div>
+                            <div class="parameter-label">COD<br><small>mg/L</small></div>
+                        </div>
+                        {% endif %}
+
+                        {% if pond.TSS %}
+                        <div class="parameter-box">
+                            <div
+                                class="parameter-value {% if pond.TSS <= 50 %}normal{% elif pond.TSS <= 55 %}warning{% else %}danger{% endif %}">
+                                {{ pond.TSS }}
+                            </div>
+                            <div class="parameter-label">TSS<br><small>mg/L</small></div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="text-center mt-3">
+                        <small>
+                            <span class="badge bg-success">✓ {{ pond.pass_count }}</span>
+                            <span class="badge bg-warning text-dark">⚠ {{ pond.near_limit_count }}</span>
+                            <span class="badge bg-danger">✗ {{ pond.fail_count }}</span>
+                            <span class="text-muted">/ {{ pond.total_parameters }} พารามิเตอร์</span>
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Refresh notice -->
+        <div class="refresh-notice">
+            <i class="bi bi-arrow-clockwise me-1"></i> หน้านี้จะรีเฟรชอัตโนมัติทุก 5 นาที เพื่อแสดงข้อมูลล่าสุด
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <div class="row align-items-center g-2">
+                <div class="col-md-6">
+                    <h5><i class="bi bi-droplet-fill me-2"></i>Water Quality System</h5>
+                    <p>ระบบติดตามและประเมินคุณภาพน้ำทิ้งจากกระบวนการบำบัด</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>Powered by Fuzzy Logic & AI</p>
+                    <p>© 2025 ปริพจน์. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto refresh -->
+    <script>
+        setTimeout(function () { location.reload(); }, 300000);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

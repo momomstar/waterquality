@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Home - Water Quality</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+
+  <style>
+    :root {
+      --brand: #2c5aa0;
+      --brand2: #1e4180;
+      --soft: #f5f8ff;
+      --border: #e6eaf2;
+    }
+
+    body {
+      background: #f6f7fb;
+      font-family: 'Sarabun', sans-serif;
+      color: #111827;
+    }
+
+    /* cards */
+    .content-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, .08);
+      padding: 1.15rem;
+      margin-bottom: 1rem;
+    }
+
+    /* section titles */
+    .title {
+      font-weight: 950;
+      color: var(--brand);
+    }
+
+    .muted {
+      color: #6b7280;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-weight: 950;
+      color: var(--brand);
+      margin-bottom: .2rem;
+    }
+
+    .section-sub {
+      color: #6b7280;
+      font-size: .92rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 0, 0, .12), transparent);
+      margin: .9rem 0;
+    }
+
+    /* filter card look */
+    .filter-card {
+      background: linear-gradient(180deg, #eef4ff, #ffffff);
+      border: 1px solid rgba(44, 90, 160, .18);
+    }
+
+    /* inputs */
+    .form-label {
+      font-weight: 950;
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: 14px;
+      border: 1px solid rgba(17, 24, 39, .12);
+      padding: .65rem .9rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: rgba(44, 90, 160, .45);
+      box-shadow: 0 0 0 .2rem rgba(44, 90, 160, .12);
+    }
+
+    /* buttons */
+    .btn {
+      border-radius: 14px;
+      font-weight: 950;
+      padding: .62rem 1rem;
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      border: none;
+      box-shadow: 0 10px 22px rgba(44, 90, 160, .18);
+    }
+
+    .btn-primary:hover {
+      background: var(--brand2);
+    }
+
+    .btn-outline-primary {
+      border-color: rgba(44, 90, 160, .35);
+      color: var(--brand);
+    }
+
+    .btn-outline-primary:hover {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    /* pills */
+    .pill {
+      border-radius: 999px;
+      padding: .35rem .75rem;
+      font-weight: 950;
+      font-size: .85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      border: 1px solid rgba(0, 0, 0, .06);
+      white-space: nowrap;
+    }
+
+    .pill-pass {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .pill-near {
+      background: #fff7ed;
+      color: #92400e;
+    }
+
+    .pill-fail {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .pill-muted {
+      background: #eef2f7;
+      color: #374151;
+    }
+
+    /* ops cards */
+    .ops-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1rem;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .ops-card .label {
+      color: #6b7280;
+      font-weight: 900;
+    }
+
+    .ops-card .number {
+      font-size: 2.35rem;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .ops-card .icon {
+      position: absolute;
+      right: 14px;
+      bottom: 10px;
+      font-size: 2.4rem;
+      opacity: .10;
+    }
+
+    .top-danger {
+      border-top: 5px solid #ef4444;
+    }
+
+    .top-warning {
+      border-top: 5px solid #f59e0b;
+    }
+
+    .top-success {
+      border-top: 5px solid #10b981;
+    }
+
+    .top-primary {
+      border-top: 5px solid var(--brand);
+    }
+
+    /* table */
+    .table thead th {
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .table tbody td {
+      vertical-align: middle;
+    }
+
+    /* score */
+    .big-score {
+      font-size: 3.1rem;
+      font-weight: 980;
+      line-height: 1;
+      letter-spacing: -1px;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, .06);
+    }
+
+    .score-pass {
+      color: #16a34a;
+    }
+
+    .score-near {
+      color: #f59e0b;
+    }
+
+    .score-fail {
+      color: #ef4444;
+    }
+
+    /* range panel */
+    .range-panel {
+      border: 1px dashed rgba(44, 90, 160, .35);
+      background: #fff;
+      border-radius: 16px;
+      padding: .95rem;
+    }
+
+    /* metric */
+    .metric {
+      border: 1px solid rgba(17, 24, 39, .10);
+      border-radius: 16px;
+      padding: .8rem .9rem;
+      background: #fff;
+      height: 100%;
+    }
+
+    .metric .k {
+      font-weight: 950;
+    }
+
+    .metric .v {
+      font-weight: 980;
+      font-size: 1.15rem;
+    }
+
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #eef2f7;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .9rem;
+    }
+  </style>
+
+</head>
+
+<body>
+  {% include "navbar.html" %}
+
+  <div class="container mt-4">
+
+    <!-- Filters (clean + pro) -->
+    <div class="content-card filter-card mb-3">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+        <div>
+          <div class="section-title"><i class="bi bi-funnel"></i> ตัวกรองข้อมูล</div>
+          <div class="section-sub">{{ display_date_text }}</div>
+        </div>
+        <span class="pill pill-muted"><i class="bi bi-geo-alt"></i> {{ selected_location }}</span>
+      </div>
+
+      <form method="GET" action="{{ url_for('dashboard') }}" class="row g-3 align-items-end">
+
+        <!-- Location -->
+        <div class="col-lg-4">
+          <label class="form-label">สถานที่</label>
+          <select class="form-select" name="location" required>
+            {% for loc in location_list %}
+            <option value="{{ loc }}" {% if loc==selected_location %}selected{% endif %}>{{ loc }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Month -->
+        <div class="col-lg-4">
+          <label class="form-label">ดูแบบเดือน (แนะนำ)</label>
+          <div class="d-flex gap-2">
+            <input id="monthInput" type="month" class="form-control" name="month" value="{{ selected_month or '' }}">
+            <button class="btn btn-outline-primary" type="submit" name="mode" value="month">
+              <i class="bi bi-calendar3 me-1"></i> ดูเดือน
+            </button>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="col-lg-4 d-flex justify-content-lg-end gap-2">
+          <button class="btn btn-primary" type="submit" name="mode" value="latest">
+            <i class="bi bi-lightning-charge me-1"></i> ล่าสุด
+          </button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('dashboard', location=selected_location) }}">
+            <i class="bi bi-arrow-clockwise me-1"></i> รีเซ็ต
+          </a>
+        </div>
+
+        <div class="col-12">
+          <div class="divider"></div>
+          <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#rangeFilter" role="button"
+            aria-expanded="false" aria-controls="rangeFilter">
+            <i class="bi bi-sliders me-1"></i> เลือกช่วงวัน (optional)
+          </a>
+        </div>
+
+        <div class="collapse col-12" id="rangeFilter">
+          <div class="range-panel mt-2">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">ช่วงวันที่ (จาก)</label>
+                <input type="date" class="form-control" name="date_from" value="{{ date_from or '' }}">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">ถึง</label>
+                <input type="date" class="form-control" name="date_to" value="{{ date_to or '' }}">
+              </div>
+              <div class="col-12 d-flex justify-content-end">
+                <button class="btn btn-outline-primary" type="submit" name="mode" value="range">
+                  <i class="bi bi-search me-1"></i> แสดงผลช่วงวัน
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    {% if selected_pond == 'ทั้งหมด' %}
+    <!-- =========================
+         OVERVIEW MODE
+         ========================= -->
+
+    {% if all_ponds_overview %}
+
+    <!-- Ops cards -->
+    <div class="row g-3 mb-3">
+      <div class="col-md-3">
+        <div class="ops-card top-danger">
+          <div class="label">ต้องแก้ (เกิน)</div>
+          <div class="number text-danger">{{ overview_stats.fail }}</div>
+          <div class="muted">Score &lt; 60</div>
+          <i class="bi bi-x-octagon-fill icon"></i>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="ops-card top-warning">
+          <div class="label">เฝ้าระวัง</div>
+          <div class="number text-warning">{{ overview_stats.near_limit }}</div>
+          <div class="muted">Score 60–79</div>
+          <i class="bi bi-exclamation-triangle-fill icon"></i>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="ops-card top-success">
+          <div class="label">ผ่าน</div>
+          <div class="number text-success">{{ overview_stats.pass }}</div>
+          <div class="muted">Score ≥ 80</div>
+          <i class="bi bi-check-circle-fill icon"></i>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="ops-card top-primary">
+          <div class="label">บ่อทั้งหมด</div>
+          <div class="number">{{ overview_stats.total }}</div>
+          <div class="muted">{{ selected_location }}</div>
+          <i class="bi bi-layers-fill icon"></i>
+        </div>
+      </div>
+    </div>
+
+    {% set final_candidate = namespace(item=None) %}
+    {% for pond in all_ponds_overview %}
+    {% if 'หลัง' in pond.pond_name or 'พักน้ำทิ้ง' in pond.pond_name or 'Treated' in pond.pond_name or 'Final' in
+    pond.pond_name %}
+    {% set final_candidate.item = pond %}
+    {% endif %}
+    {% endfor %}
+
+    <div class="row g-3">
+      <div class="col-lg-7">
+        <div class="content-card">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <div>
+              <h5 class="title mb-0"><i class="bi bi-award me-2"></i>บ่อหลังบำบัด (เน้นหลัก)</h5>
+              <div class="muted" style="font-size:.9rem">
+                ช่วงข้อมูล: {{ date_from }} ถึง {{ date_to }}
+              </div>
+            </div>
+
+            {% if final_candidate.item %}
+            {% if final_candidate.item.status == 'Pass' %}
+            <span class="pill pill-pass"><i class="bi bi-check-circle"></i>ผ่าน</span>
+            {% elif final_candidate.item.status == 'Near Limit' %}
+            <span class="pill pill-near"><i class="bi bi-exclamation-triangle"></i>ระวัง</span>
+            {% else %}
+            <span class="pill pill-fail"><i class="bi bi-x-circle"></i>เกิน</span>
+            {% endif %}
+            {% else %}
+            <span class="pill pill-muted">ยังไม่ระบุบ่อหลังบำบัด</span>
+            {% endif %}
+          </div>
+
+          <div class="row align-items-center g-3">
+            <div class="col-md-5 text-center">
+              {% if final_candidate.item %}
+              {% set s = final_candidate.item.fuzzy_score %}
+              <div class="big-score
+                    {% if s is not none and s >= 80 %}score-pass
+                    {% elif s is not none and s >= 60 %}score-near
+                    {% elif s is not none %}score-fail
+                    {% endif %}">
+                {{ s if s is not none else '-' }}
+              </div>
+              <div class="muted fw-bold">คะแนนคุณภาพรวม (Fuzzy)</div>
+              <div class="muted" style="font-size:.85rem">
+                อัปเดต: {{ final_candidate.item.sample_date.strftime('%d/%m/%Y %H:%M') }}
+              </div>
+              {% else %}
+              <div class="big-score">-</div>
+              <div class="muted fw-bold">ยังไม่มีข้อมูลบ่อหลังบำบัด</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-7">
+              <div class="fw-bold mb-2" style="color:#2c5aa0;">
+                <i class="bi bi-exclamation-diamond me-1"></i> สาเหตุหลัก (Top)
+              </div>
+
+              {% if final_candidate.item and final_candidate.item.critical_params %}
+              <div class="d-flex flex-wrap gap-2">
+                {% for p in final_candidate.item.critical_params[:6] %}
+                <span class="pill pill-fail">{{ p }}</span>
+                {% endfor %}
+              </div>
+              {% elif final_candidate.item and final_candidate.item.warning_params %}
+              <div class="d-flex flex-wrap gap-2">
+                {% for p in final_candidate.item.warning_params[:6] %}
+                <span class="pill pill-near">{{ p }}</span>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="text-muted">-</div>
+              {% endif %}
+
+              <div class="mt-3 d-flex gap-2 flex-wrap">
+                {% if final_candidate.item %}
+                <a class="btn btn-primary btn-sm" href="{{ url_for('dashboard',
+                                  location=selected_location,
+                                  pond=final_candidate.item.pond_name,
+                                  date_from=(date_from or ''),
+                                  date_to=(date_to or '')) }}">
+                  <i class="bi bi-eye me-1"></i> ดูรายละเอียด
+                </a>
+                {% endif %}
+
+                <a class="btn btn-outline-primary btn-sm" href="{{ url_for('dashboard',
+                                  location=selected_location,
+                                  pond='ทั้งหมด',
+                                  date_from=(date_from or ''),
+                                  date_to=(date_to or '')) }}">
+                  <i class="bi bi-list-ul me-1"></i> ดูรายการบ่อ
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="content-card">
+          <h5 class="title mb-2"><i class="bi bi-graph-down-arrow me-2"></i>ประสิทธิภาพการบำบัด</h5>
+          <div class="muted mb-3" style="font-size:.9rem">
+            คำนวณ “ลดลง (%)” จาก <strong>ก่อนบำบัด → หลังบำบัด</strong> (เฉพาะวันที่จับคู่ได้)
+          </div>
+
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="metric">
+                <div class="k">BOD ลดลง</div>
+                <div class="v">{{ (reduction.BOD ~ '%') if reduction is defined and reduction and reduction.BOD is not none else '-' }}</div>
+                <div class="sub">ก่อน → หลัง</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="metric">
+                <div class="k">COD ลดลง</div>
+                <div class="v">{{ (reduction.COD ~ '%') if reduction is defined and reduction and reduction.COD is not none else '-' }}</div>
+                <div class="sub">ก่อน → หลัง</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="metric">
+                <div class="k">TSS ลดลง</div>
+                <div class="v">{{ (reduction.TSS ~ '%') if reduction is defined and reduction and reduction.TSS is not none else '-' }}</div>
+                <div class="sub">ก่อน → หลัง</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="metric">
+                <div class="k">FCB/TCB ลดลง</div>
+                <div class="v">
+                  {{ (reduction.FCB ~ '%') if reduction is defined and reduction and reduction.FCB is not none else '-' }}
+                  /
+                  {{ (reduction.TCB ~ '%') if reduction is defined and reduction and reduction.TCB is not none else '-' }}
+                </div>
+                <div class="sub">ก่อน → หลัง</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info mt-3 mb-0">
+            <i class="bi bi-lightbulb me-1"></i>
+            ถ้ายังขึ้น “-” แปลว่าในวันนั้นยังไม่มี “ก่อนบำบัด” ที่จับคู่กับ “หลังบำบัด” (หรือข้อมูลค่าเป็น None)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW: Stage compare table -->
+    <div class="content-card">
+      <h6 class="title mb-2"><i class="bi bi-diagram-3 me-2"></i>เปรียบเทียบแต่ละบ่อ (วันเดียวกัน)</h6>
+      <div class="muted mini mb-2">ใช้เพื่อดู “แนวโน้มลดลง” ระหว่าง ก่อน → กลาง → หลังบำบัด</div>
+
+      {% if stage_compare is defined and stage_compare and stage_compare|length > 0 %}
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th>sample_type</th>
+              <th>ชื่อบ่อ (DB)</th>
+              <th style="width:120px;">BOD</th>
+              <th style="width:120px;">COD</th>
+              <th style="width:120px;">TSS</th>
+              <th style="width:140px;">FCB</th>
+              <th style="width:140px;">TCB</th>
+              <th style="width:110px;">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in stage_compare %}
+            <tr>
+              <td><strong>{{ r.stage }}</strong></td>
+              <td class="muted">{{ r.sample_type }}</td>
+              <td class="muted">{{ r.pond_name }}</td>
+              <td>{{ r.BOD if r.BOD is not none else '-' }}</td>
+              <td>{{ r.COD if r.COD is not none else '-' }}</td>
+              <td>{{ r.TSS if r.TSS is not none else '-' }}</td>
+              <td>{{ r.FCB if r.FCB is not none else '-' }}</td>
+              <td>{{ r.TCB if r.TCB is not none else '-' }}</td>
+              <td><strong>{{ r.score if r.score is not none else '-' }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-muted">
+        ยังไม่มีข้อมูล “ก่อนบำบัด/กำลังบำบัด” ที่จับคู่วันเดียวกับ “หลังบำบัด” (หรือยังไม่ส่ง stage_compare มาที่ template)
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- List of ponds... (เหมือนเดิมทั้งหมด) -->
+    <!-- ... (ส่วน OVERVIEW ที่เหลือของคุณยังเหมือนเดิม) ... -->
+
+    {% else %}
+    <div class="content-card text-center py-5">
+      <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+      <h5 class="mt-3 text-muted">ไม่พบข้อมูลในช่วงเวลาที่เลือก</h5>
+      <p class="text-muted">กรุณาเลือกช่วงเวลาอื่นหรือเพิ่มข้อมูลใหม่</p>
+      <a href="{{ url_for('add_data') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> เพิ่มข้อมูล
+      </a>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- =========================
+         DETAIL MODE (IMPROVED)
+         ========================= -->
+
+    <div class="content-card">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+        <div>
+          <h5 class="title mb-1">
+            <i class="bi bi-droplet-half me-2"></i>รายละเอียดบ่อ: {{ selected_pond }}
+          </h5>
+          <div class="muted">{{ display_date_text }}</div>
+          <div class="muted" style="font-size:.9rem">
+            พบข้อมูลในช่วงนี้: <strong>{{ after_count if after_count is not none else 0 }}</strong> รายการ
+          </div>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+          <a class="btn btn-outline-primary btn-sm"
+            href="{{ url_for('dashboard', location=selected_location, pond='ทั้งหมด', date_from=(date_from or ''), date_to=(date_to or '')) }}">
+            <i class="bi bi-arrow-left me-1"></i> กลับภาพรวม
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% if after_data %}
+
+    {% set total_params = (param_rows|length) if param_rows is defined else 0 %}
+    {% set ns = namespace(pass=0, near=0, fail=0, reasons_fail=[], reasons_near=[]) %}
+
+    {% if param_rows is defined %}
+    {% for r in param_rows %}
+    {% if r.status == 'Pass' %}
+    {% set ns.pass = ns.pass + 1 %}
+    {% elif r.status == 'Near Limit' %}
+    {% set ns.near = ns.near + 1 %}
+    {% set _ = ns.reasons_near.append(r.label) %}
+    {% elif r.status == 'Fail' %}
+    {% set ns.fail = ns.fail + 1 %}
+    {% set _ = ns.reasons_fail.append(r.label) %}
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% set compliance_rate = (ns.pass / total_params * 100) if total_params > 0 else 0 %}
+
+    <div class="row g-3">
+      <!-- Left: Fuzzy score + meaning -->
+      <div class="col-lg-4">
+        <div class="content-card text-center">
+          <div class="section-badge mb-1">
+            <i class="bi bi-stars"></i> คะแนนคุณภาพรวม (Fuzzy)
+          </div>
+
+          {% set s = score_value %}
+          <div class="big-score
+                {% if s is not none and s >= 80 %}score-pass
+                {% elif s is not none and s >= 60 %}score-near
+                {% elif s is not none %}score-fail
+                {% endif %}">
+            {{ s if s is not none else '-' }}
+          </div>
+
+          <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
+            {% if overall_status == 'Pass' %}
+            <span class="pill pill-pass"><i class="bi bi-check-circle"></i> Pass</span>
+            {% elif overall_status == 'Near Limit' %}
+            <span class="pill pill-near"><i class="bi bi-exclamation-triangle"></i> Near</span>
+            {% elif overall_status == 'Fail' %}
+            <span class="pill pill-fail"><i class="bi bi-x-circle"></i> Fail</span>
+            {% else %}
+            <span class="pill pill-muted"><i class="bi bi-dash-circle"></i> No Data</span>
+            {% endif %}
+          </div>
+
+          <div class="muted mt-2 mini">
+            อัปเดต: {{ after_data.sample_date.strftime('%d/%m/%Y %H:%M') }}
+          </div>
+
+          {% if overall_message %}
+          <div class="alert alert-light mt-3 mb-0 text-start">
+            <div class="fw-bold"><i class="bi bi-chat-left-quote me-1"></i> สรุป</div>
+            <div class="muted">{{ overall_message }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="info-box">
+          <div class="fw-bold mb-1"><i class="bi bi-info-circle me-1"></i> ทำไม “Fuzzy” อาจไม่ตรงกับ “ผ่านมาตรฐาน” ?
+          </div>
+          <div class="mini">
+            ตารางมาตรฐานคือ “ผ่าน/ไม่ผ่านรายตัว” (Compliance) <br />
+            ส่วน Fuzzy คือ “ประเมินความรุนแรงรวม” จากกฎ/ความสำคัญของตัวแปร
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Compliance summary + table -->
+      <div class="col-lg-8">
+        <div class="content-card">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <div>
+              <div class="section-badge">
+                <i class="bi bi-shield-check"></i> Compliance ตามมาตรฐาน (รายพารามิเตอร์)
+              </div>
+              <div class="muted mini">แปลผลจากสถานะ Pass / Near / Fail ของแต่ละพารามิเตอร์</div>
+            </div>
+            <div class="text-end">
+              <div class="fw-bold">ผ่าน {{ ns.pass }}/{{ total_params }}</div>
+              <div class="muted mini">อัตราผ่าน: {{ compliance_rate|round(1) }}%</div>
+            </div>
+          </div>
+
+          <div class="progress mb-2">
+            <div class="progress-bar bg-success" style="width: {{ compliance_rate }}%"></div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <div class="metric">
+                <div class="k"><i class="bi bi-check-circle me-1"></i> Pass</div>
+                <div class="v text-success">{{ ns.pass }}</div>
+                <div class="sub">อยู่ในเกณฑ์</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="metric">
+                <div class="k"><i class="bi bi-exclamation-triangle me-1"></i> Near</div>
+                <div class="v text-warning">{{ ns.near }}</div>
+                <div class="sub">ใกล้ขอบ/ควรเฝ้าระวัง</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="metric">
+                <div class="k"><i class="bi bi-x-circle me-1"></i> Fail</div>
+                <div class="v text-danger">{{ ns.fail }}</div>
+                <div class="sub">เกินมาตรฐาน</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="reason-box mb-3">
+            <div class="fw-bold mb-2"><i class="bi bi-exclamation-diamond me-1"></i> ตัวแปรที่ควรดูเป็นพิเศษ</div>
+
+            {% if ns.reasons_fail|length > 0 %}
+            <div class="mb-2">
+              <span class="pill pill-fail"><i class="bi bi-x-circle"></i> Fail</span>
+              <span class="ms-2 muted mini">กระทบคุณภาพรวมมาก (ตาม rule)</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              {% for p in ns.reasons_fail %}
+              <span class="pill pill-fail">{{ p }}</span>
+              {% endfor %}
+            </div>
+            <hr />
+            {% endif %}
+
+            {% if ns.reasons_near|length > 0 %}
+            <div class="mb-2">
+              <span class="pill pill-near"><i class="bi bi-exclamation-triangle"></i> Near Limit</span>
+              <span class="ms-2 muted mini">เริ่มเสี่ยง/ควรจับตา</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              {% for p in ns.reasons_near %}
+              <span class="pill pill-near">{{ p }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if ns.reasons_fail|length == 0 and ns.reasons_near|length == 0 %}
+            <div class="text-muted">ไม่พบตัวแปรที่ Fail / Near Limit ในชุดข้อมูลนี้</div>
+            {% endif %}
+          </div>
+
+          <h6 class="title mb-2"><i class="bi bi-list-check me-2"></i>ค่าพารามิเตอร์ล่าสุดเทียบมาตรฐาน</h6>
+
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>พารามิเตอร์</th>
+                  <th style="width:160px;">ค่า</th>
+                  <th style="width:200px;">มาตรฐาน</th>
+                  <th style="width:140px;">ผล</th>
+
+                  <!-- ✅ CHANGED -->
+                  <th style="width:240px;">ดัชนีเฝ้าระวัง (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in param_rows %}
+                <tr>
+                  <td><strong>{{ r.label }}</strong></td>
+                  <td>{{ r.value if r.value is not none else '-' }}</td>
+                  <td>{{ r.standard }}</td>
+                  <td>
+                    {% if r.status == 'Pass' %}
+                    <span class="pill pill-pass">🟢 ปลอดภัย</span>
+                    {% elif r.status == 'Near Limit' %}
+                    <span class="pill pill-near">🟡 เฝ้าระวัง</span>
+                    {% elif r.status == 'Fail' %}
+                    <span class="pill pill-fail">🔴 น่ากังวล</span>
+                    {% else %}
+                    <span class="pill pill-muted">N/A</span>
+                    {% endif %}
+                  </td>
+
+                  <!-- ✅ NEW: Risk percent + progress bar -->
+                  <td>
+                    {% if r.risk_percent is not none %}
+                      {% set rp = (r.risk_percent | default(0)) %}
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div class="fw-bold
+                          {% if rp < 20 %}text-success
+                          {% elif rp < 50 %}text-warning
+                          {% else %}text-danger
+                          {% endif %}">
+                          {{ rp }}%
+                        </div>
+                        <div class="muted mini">
+                          {% if rp < 20 %}Pass
+                          {% elif rp < 50 %}Near
+                          {% else %}Fail
+                          {% endif %}
+                        </div>
+                      </div>
+
+                      <div class="progress mt-1">
+                        <div class="progress-bar
+                          {% if rp < 20 %}bg-success
+                          {% elif rp < 50 %}bg-warning
+                          {% else %}bg-danger
+                          {% endif %}"
+                          style="width: {{ rp }}%;">
+                        </div>
+                      </div>
+
+                      {# (optional) debug: dominant term #}
+                      {# <div class="mono muted mt-1">dominant={{ r.dominant_term }} (μ={{ r.dominant_mu }})</div> #}
+                    {% else %}
+                      <span class="muted">-</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="muted mt-2" style="font-size:.9rem">
+            * Risk% คือค่าความเสี่ยงจากฟัซซี (ต่อเนื่อง) ไม่ใช่ winner-take-all
+          </div>
+
+          <div class="alert alert-warning mt-3 mb-0">
+            <i class="bi bi-lightning-charge me-1"></i>
+            <strong>Tip:</strong> ถ้าตาราง “ผ่านเยอะ” แต่คะแนน Fuzzy “ต่ำมาก” มักเกิดจากกฎ Fuzzy ที่ทำให้ตัวแปรบางตัว
+            (เช่น BOD) มีผลหนักเกินไป
+            → ปรับ rule เป็น “Fail หลายตัวร่วมกัน = poor” หรือทำ “penalty แบบค่อยๆลด” จะสมจริงขึ้น
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="content-card text-center py-5">
+      <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+      <h5 class="mt-3 text-muted">บ่อนี้ไม่มีข้อมูล</h5>
+      <p class="text-muted">ลองเปลี่ยนช่วงเวลา หรือกลับไปดูภาพรวม/อัปโหลดข้อมูล</p>
+      <div class="d-flex justify-content-center gap-2 flex-wrap">
+        <a href="{{ url_for('dashboard', location=selected_location, pond='ทั้งหมด') }}" class="btn btn-outline-primary">
+          <i class="bi bi-list-ul me-1"></i> กลับภาพรวม
+        </a>
+        <a href="{{ url_for('upload_data') }}" class="btn btn-primary">
+          <i class="bi bi-upload me-1"></i> อัปโหลด Excel
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

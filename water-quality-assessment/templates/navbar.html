@@ -1,0 +1,75 @@
+{# templates/navbar.html #}
+<nav class="navbar navbar-expand-lg sticky-top navbar-dark"
+  style="background: var(--brand); border-bottom: 3px solid var(--brand2); box-shadow: 0 10px 24px rgba(15,23,42,.10);">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{{ url_for('dashboard') }}">
+      <i class="bi bi-droplet-fill"></i>
+      <span>Water Quality System</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+
+        <li class="nav-item">
+          <a class="nav-link px-3 {% if request.endpoint == 'dashboard' %}active{% endif %}"
+            href="{{ url_for('dashboard') }}" style="border-radius: 12px;">
+            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link px-3 {% if request.endpoint == 'add_data' %}active{% endif %}"
+            href="{{ url_for('add_data') }}" style="border-radius: 12px;">
+            <i class="bi bi-plus-circle me-1"></i> เพิ่มข้อมูล
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link px-3 {% if request.endpoint == 'upload_data' %}active{% endif %}"
+            href="{{ url_for('upload_data') }}" style="border-radius: 12px;">
+            <i class="bi bi-upload me-1"></i> อัปโหลด
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link px-3 {% if request.endpoint == 'history' %}active{% endif %}"
+            href="{{ url_for('history') }}" style="border-radius: 12px;">
+            <i class="bi bi-clock-history me-1"></i> ประวัติ
+          </a>
+        </li>
+
+        <li class="nav-item ms-lg-2">
+          <a class="btn btn-light fw-bold px-3" href="{{ url_for('logout') }}" style="border-radius: 14px;">
+            <i class="bi bi-box-arrow-right me-1"></i> ออกจากระบบ
+          </a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<style>
+  /* ให้ navbar ใช้ theme เดียวกับ enhanced_dashboard */
+  .navbar .nav-link {
+    color: rgba(255, 255, 255, .92) !important;
+    font-weight: 850;
+  }
+
+  .navbar .nav-link:hover {
+    background: rgba(255, 255, 255, .14);
+  }
+
+  .navbar .nav-link.active {
+    background: rgba(255, 255, 255, .18);
+  }
+
+  .navbar .navbar-brand {
+    color: #fff !important;
+  }
+</style>

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มข้อมูล - Water Quality</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --brand: #2c5aa0;
+            --brand2: #1e4180;
+            --border: #e6eaf2;
+            --text: #0f172a;
+            --muted: #64748b;
+            --shadow: 0 14px 34px rgba(15, 23, 42, .10);
+            --shadow-soft: 0 10px 24px rgba(15, 23, 42, .08);
+            --radius: 18px;
+        }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 20% -10%, rgba(44, 90, 160, .14), transparent 55%),
+                radial-gradient(900px 480px at 90% 10%, rgba(30, 65, 128, .12), transparent 55%),
+                #f6f7fb;
+            font-family: 'Sarabun', sans-serif;
+            color: var(--text);
+        }
+
+        /* page spacing */
+        .page-wrap {
+            padding: 1.25rem 0 2.2rem;
+        }
+
+        /* header */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin: .25rem 0 1rem;
+        }
+
+        .page-header .left {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+        }
+
+        .page-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(180deg, rgba(44, 90, 160, .16), rgba(44, 90, 160, .05));
+            border: 1px solid rgba(44, 90, 160, .18);
+            color: var(--brand);
+        }
+
+        .title {
+            font-weight: 950;
+            color: var(--brand);
+            letter-spacing: -.2px;
+            margin: 0;
+        }
+
+        .crumb {
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        /* card */
+        .content-card {
+            background: rgba(255, 255, 255, .96);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-soft);
+            padding: 1.2rem;
+            backdrop-filter: blur(6px);
+        }
+
+        .hover-lift {
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* section blocks */
+        .form-section {
+            background: rgba(248, 250, 252, .7);
+            border: 1px solid rgba(226, 232, 240, .9);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 950;
+            color: var(--brand);
+            margin-bottom: .8rem;
+            padding-bottom: .5rem;
+            border-bottom: 1px dashed rgba(44, 90, 160, .35);
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #ef4444;
+            font-weight: 950;
+        }
+
+        /* inputs */
+        .form-label {
+            font-weight: 950;
+            color: #0b1220;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 14px;
+            border: 1px solid rgba(17, 24, 39, .12);
+            padding: .65rem .9rem;
+            background: #fff;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: rgba(44, 90, 160, .45);
+            box-shadow: 0 0 0 .2rem rgba(44, 90, 160, .12);
+        }
+
+        .hint {
+            margin-top: .35rem;
+            font-size: .85rem;
+            color: var(--muted);
+            display: flex;
+            align-items: flex-start;
+            gap: .4rem;
+        }
+
+        .hint i {
+            color: rgba(44, 90, 160, .9);
+            margin-top: .1rem;
+        }
+
+        /* buttons */
+        .btn {
+            border-radius: 14px;
+            font-weight: 950;
+            padding: .62rem 1rem;
+        }
+
+        .btn-primary {
+            background: var(--brand);
+            border: none;
+            box-shadow: 0 10px 22px rgba(44, 90, 160, .18);
+        }
+
+        .btn-primary:hover {
+            background: var(--brand2);
+        }
+
+        .btn-outline-secondary {
+            border-color: rgba(100, 116, 139, .35);
+            color: #334155;
+        }
+
+        .btn-outline-secondary:hover {
+            background: #334155;
+            border-color: #334155;
+            color: #fff;
+        }
+
+        /* alerts (soft) */
+        .alert {
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, .9);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, .08);
+            border: 1px solid rgba(59, 130, 246, .18);
+            color: #1e3a8a;
+        }
+
+        /* sticky action bar (nice on long form) */
+        .action-bar {
+            position: sticky;
+            bottom: 0;
+            background: rgba(246, 247, 251, .85);
+            backdrop-filter: blur(8px);
+            padding: .75rem 0;
+            border-top: 1px solid rgba(226, 232, 240, .9);
+            margin-top: 1rem;
+        }
+
+        @media (max-width:576px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include "navbar.html" %}
+
+    <div class="container page-wrap">
+
+        <!-- Header -->
+        <div class="page-header">
+            <div class="left">
+                <div class="page-badge"><i class="bi bi-clipboard-data"></i></div>
+                <div>
+                    <h3 class="title">บันทึกข้อมูลคุณภาพน้ำ</h3>
+                    <div class="crumb">Staff • เพิ่มข้อมูล • ระบบประเมินคุณภาพน้ำทิ้ง</div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> กลับ Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="content-card hover-lift">
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show mb-3"
+                role="alert">
+                <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-bell-fill"></i>
+                    <div>{{ message }}</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('add_data') }}" id="dataForm">
+
+                <!-- Section 1 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-info-circle"></i> ข้อมูลทั่วไป
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label required-field">วันที่และเวลาเก็บตัวอย่าง</label>
+                            <input type="datetime-local" class="form-control" name="sample_date" required>
+                            <div class="hint"><i class="bi bi-clock"></i><span>ระบบจะตั้งค่า “เวลาปัจจุบัน”
+                                    ให้อัตโนมัติ</span></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required-field">สถานที่เก็บตัวอย่าง</label>
+                            <input type="text" class="form-control" name="sample_location"
+                                placeholder="เช่น โรงงาน A, สาขา 1" required>
+                            <div class="hint"><i class="bi bi-geo-alt"></i><span>ควรกรอกให้ตรงกับที่ใช้ในระบบ
+                                    เพื่อให้กรองข้อมูลได้ง่าย</span></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required-field">ชื่อบ่อ/ระบบบำบัด</label>
+                            <input type="text" class="form-control" name="pond_name"
+                                placeholder="เช่น บ่อที่ 1, ระบบ Aeration" required>
+                            <div class="hint"><i class="bi bi-diagram-3"></i><span>ตัวอย่าง: บ่อรวบรวม, บ่อเติมอากาศ,
+                                    บ่อตกตะกอน, บ่อพักน้ำทิ้ง</span></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required-field">ประเภทตัวอย่าง</label>
+                            <select class="form-select" name="sample_type" required>
+                                <option value="ก่อนบำบัด">ก่อนบำบัด (Before Treatment)</option>
+                                <option value="กำลังบำบัด">กำลังบำบัด (During Treatment)</option>
+                                <option value="หลังบำบัด" selected>หลังบำบัด (After Treatment)</option>
+                            </select>
+                            <div class="hint"><i class="bi bi-shield-check"></i><span>หมายเหตุ: Fuzzy ถูกคำนวณหลัก ๆ
+                                    ในกรณี “หลังบำบัด”</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-bar-chart"></i> พารามิเตอร์หลัก
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label required-field">pH</label>
+                            <input type="number" min="0" max="14" step="0.01" class="form-control" name="pH"
+                                placeholder="6.5–8.5" required>
+                            <div class="hint"><i class="bi bi-droplet"></i><span>ค่าความเป็นกรด-ด่าง</span></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label required-field">BOD (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="BOD" placeholder="≤ 20"
+                                required>
+                            <div class="hint"><i class="bi bi-activity"></i><span>Biochemical Oxygen Demand</span></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label required-field">COD (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="COD" placeholder="≤ 120"
+                                required>
+                            <div class="hint"><i class="bi bi-speedometer2"></i><span>Chemical Oxygen Demand</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label required-field">TSS (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="TSS" placeholder="≤ 50"
+                                required>
+                            <div class="hint"><i class="bi bi-stack"></i><span>Total Suspended Solids</span></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label required-field">TDS (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="TDS"
+                                placeholder="≤ 3000" required>
+                            <div class="hint"><i class="bi bi-water"></i><span>Total Dissolved Solids</span></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label required-field">น้ำมันและไขมัน (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="oil_grease"
+                                placeholder="≤ 5" required>
+                            <div class="hint"><i class="bi bi-droplet-fill"></i><span>Oil &amp; Grease</span></div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-lightbulb me-1"></i>
+                        <strong>Tip:</strong> กรอกเลขทศนิยมได้ เช่น 12.50 (ระบบจะบันทึกเป็นตัวเลข)
+                    </div>
+                </div>
+
+                <!-- Section 3 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-list-check"></i> พารามิเตอร์เพิ่มเติม
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label required-field">TKN (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="TKN" placeholder="≤ 100"
+                                required>
+                            <div class="hint"><i class="bi bi-bezier2"></i><span>Total Kjeldahl Nitrogen</span></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label required-field">Sulfide (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="sulfide"
+                                placeholder="≤ 1" required>
+                            <div class="hint"><i class="bi bi-exclamation-triangle"></i><span>ซัลไฟด์</span></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label required-field">คลอรีน (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="chlorine"
+                                placeholder="0.2–5" required>
+                            <div class="hint"><i class="bi bi-shield"></i><span>Chlorine (Cl₂)</span></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label required-field">TCB (MPN/100mL)</label>
+                            <input type="number" min="0" step="1" class="form-control" name="TCB" placeholder="≤ 20000"
+                                required>
+                            <div class="hint"><i class="bi bi-bug"></i><span>Total Coliform Bacteria</span></div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label required-field">FCB (MPN/100mL)</label>
+                            <input type="number" min="0" step="1" class="form-control" name="FCB" placeholder="≤ 4000"
+                                required>
+                            <div class="hint"><i class="bi bi-bug-fill"></i><span>Fecal Coliform Bacteria</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-dash-circle"></i> พารามิเตอร์เสริม (ไม่บังคับ)
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Ammonium - NH₄ (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="ammonium"
+                                placeholder="ถ้ามีการตรวจ">
+                            <div class="hint"><i class="bi bi-plus-circle"></i><span>แนะนำใส่ถ้ามีผลตรวจ
+                                    เพื่อใช้วิเคราะห์เพิ่ม</span></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Dissolved Oxygen - DO (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="dissolved_oxygen"
+                                placeholder="สำหรับระหว่างบำบัด">
+                            <div class="hint"><i class="bi bi-wind"></i><span>สำคัญสำหรับระบบ Aeration</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="action-bar">
+                    <div class="container px-0">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> ล้างข้อมูล
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i> บันทึกข้อมูล
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Set default datetime to now
+        document.addEventListener('DOMContentLoaded', function () {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const el = document.querySelector('input[name="sample_date"]');
+            if (el) el.value = now.toISOString().slice(0, 16);
+        });
+
+        // Form validation (keep your original)
+        document.getElementById('dataForm').addEventListener('submit', function (e) {
+            const location = document.querySelector('input[name="sample_location"]').value.trim();
+            if (!location) {
+                e.preventDefault();
+                alert('⚠️ กรุณาระบุสถานที่เก็บตัวอย่าง');
+                return false;
+            }
+        });
+    </script>
+</body>
+
+</html>
