@@ -2479,9 +2479,7 @@ def internal_error(error):
 # =========================
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
     with app.app_context():
         db.create_all()
         check_and_sync_fuzzy()
-
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
