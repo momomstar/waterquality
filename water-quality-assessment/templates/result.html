@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ผลการประเมินคุณภาพน้ำ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #0f2744;
+      --navy2: #1a3a6b;
+      --sky: #0ea5e9;
+      --sky2: #0284c7;
+      --sky-lt: #e0f2fe;
+      --sky-bd: #bae6fd;
+      --pass: #059669;
+      --pass-bg: #d1fae5;
+      --pass-bd: #a7f3d0;
+      --near: #d97706;
+      --near-bg: #fef3c7;
+      --near-bd: #fde68a;
+      --fail: #dc2626;
+      --fail-bg: #fee2e2;
+      --fail-bd: #fca5a5;
+      --muted: #64748b;
+      --border: rgba(15, 39, 68, .09);
+      --border2: rgba(15, 39, 68, .16);
+      --card: #fff;
+      --bg: #eef2f8;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      color: var(--navy);
+      background: var(--bg);
+      margin: 0;
+      padding: 0
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace
+    }
+
+    .page-wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 20px 80px
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px
+    }
+
+    .ph-left {
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .ph-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--navy), var(--navy2));
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(15, 39, 68, .25)
+    }
+
+    .ph-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 0
+    }
+
+    .ph-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px
+    }
+
+    .breadcrumb-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px
+    }
+
+    .breadcrumb-bar a {
+      color: var(--sky);
+      text-decoration: none
+    }
+
+    .breadcrumb-bar a:hover {
+      text-decoration: underline
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      flex-wrap: wrap
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 9px;
+      border: 1px solid var(--border2);
+      background: var(--card);
+      color: var(--navy);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all .15s
+    }
+
+    .btn-back:hover {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy)
+    }
+
+    .btn-export {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 9px;
+      background: var(--fail);
+      color: #fff;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background .15s;
+      letter-spacing: .01em
+    }
+
+    .btn-export:hover {
+      background: #b91c1c;
+      color: #fff
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1e3f73 100%);
+      border-radius: 18px;
+      padding: 28px 28px 24px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(15, 39, 68, .22)
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .04)
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      left: 140px;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: rgba(14, 165, 233, .08)
+    }
+
+    @media(max-width:640px) {
+      .hero {
+        flex-direction: column;
+        gap: 16px
+      }
+    }
+
+    /* Score Ring */
+    .score-wrap {
+      flex-shrink: 0;
+      position: relative;
+      width: 120px;
+      height: 120px
+    }
+
+    .score-wrap svg {
+      position: absolute;
+      inset: 0;
+      transform: rotate(-90deg)
+    }
+
+    .score-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center
+    }
+
+    .score-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 34px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1
+    }
+
+    .score-label {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .5);
+      margin-top: 2px;
+      letter-spacing: .5px
+    }
+
+    /* Hero right */
+    .hero-body {
+      flex: 1;
+      min-width: 0
+    }
+
+    .hero-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: .01em
+    }
+
+    .hs-pass {
+      background: rgba(5, 150, 105, .22);
+      color: #6ee7b7;
+      border: 1px solid rgba(5, 150, 105, .3)
+    }
+
+    .hs-near {
+      background: rgba(217, 119, 6, .22);
+      color: #fcd34d;
+      border: 1px solid rgba(217, 119, 6, .3)
+    }
+
+    .hs-fail {
+      background: rgba(220, 38, 38, .22);
+      color: #fca5a5;
+      border: 1px solid rgba(220, 38, 38, .3)
+    }
+
+    .hs-none {
+      background: rgba(255, 255, 255, .1);
+      color: rgba(255, 255, 255, .6);
+      border: 1px solid rgba(255, 255, 255, .15)
+    }
+
+    .hero-msg {
+      font-size: 12px;
+      color: rgba(255, 255, 255, .65);
+      line-height: 1.65;
+      margin-bottom: 14px
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, .1);
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, .8)
+    }
+
+    .meta-chip i {
+      opacity: .65;
+      font-size: 11px
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 4px rgba(15, 39, 68, .04)
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 16px
+    }
+
+    .card-title i {
+      color: var(--sky);
+      font-size: 15px
+    }
+
+    .card-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+      font-weight: 400
+    }
+
+    /* ── COMPLIANCE BAR ── */
+    .compliance-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 11px 14px;
+      background: linear-gradient(to right, #f8fafc, #fff);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      flex-wrap: wrap
+    }
+
+    .comp-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .cp-pass {
+      background: var(--pass-bg);
+      color: var(--pass);
+      border: 1px solid var(--pass-bd)
+    }
+
+    .cp-near {
+      background: var(--near-bg);
+      color: var(--near);
+      border: 1px solid var(--near-bd)
+    }
+
+    .cp-fail {
+      background: var(--fail-bg);
+      color: var(--fail);
+      border: 1px solid var(--fail-bd)
+    }
+
+    .comp-bar-track {
+      flex: 1;
+      height: 7px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      min-width: 80px
+    }
+
+    .comp-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pass), #34d399);
+      transition: width .8s ease
+    }
+
+    .comp-pct {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      min-width: 38px;
+      text-align: right
+    }
+
+    /* ── PARAM TABLE ── */
+    .table-outer {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 6px rgba(15, 39, 68, .06)
+    }
+
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      min-width: 600px
+    }
+
+    /* header */
+    .param-table thead tr {
+      background: var(--navy)
+    }
+
+    .param-table th {
+      color: rgba(255, 255, 255, .82);
+      padding: 11px 14px;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      white-space: nowrap;
+      text-align: left
+    }
+
+    .param-table th:not(:first-child) {
+      text-align: center
+    }
+
+    /* body rows */
+    .param-table tbody tr {
+      transition: background .1s
+    }
+
+    .param-table tbody tr:nth-child(odd) td {
+      background: #fff
+    }
+
+    .param-table tbody tr:nth-child(even) td {
+      background: #f8fafc
+    }
+
+    .param-table tbody tr:hover td {
+      background: var(--sky-lt) !important
+    }
+
+    .param-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid rgba(15, 39, 68, .07);
+      vertical-align: middle;
+      text-align: center
+    }
+
+    .param-table td:first-child {
+      text-align: left
+    }
+
+    .param-table tbody tr:last-child td {
+      border-bottom: none
+    }
+
+    /* left color accent */
+    .param-table tbody tr.row-pass td:first-child {
+      border-left: 4px solid var(--pass)
+    }
+
+    .param-table tbody tr.row-near td:first-child {
+      border-left: 4px solid var(--near)
+    }
+
+    .param-table tbody tr.row-fail td:first-child {
+      border-left: 4px solid var(--fail)
+    }
+
+    .param-table tbody tr.row-unreg td {
+      background: #f8fafc
+    }
+
+    .param-table tbody tr.row-unreg td:first-child {
+      border-left: 4px solid #94a3b8
+    }
+
+    .param-table tbody tr:not([class]) td:first-child {
+      border-left: 4px solid transparent
+    }
+
+    /* param name cell */
+    .pname {
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--navy);
+      display: block
+    }
+
+    /* value cell */
+    .pval {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 700
+    }
+
+    .pval-pass {
+      color: var(--pass)
+    }
+
+    .pval-near {
+      color: var(--near)
+    }
+
+    .pval-fail {
+      color: var(--fail)
+    }
+
+    .pval-na {
+      color: var(--muted)
+    }
+
+    /* std cell */
+    .pstd {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace
+    }
+
+    /* status tag */
+    .stag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap
+    }
+
+    .stag-pass {
+      background: var(--pass-bg);
+      color: var(--pass);
+      border: 1px solid var(--pass-bd)
+    }
+
+    .stag-near {
+      background: var(--near-bg);
+      color: var(--near);
+      border: 1px solid var(--near-bd)
+    }
+
+    .stag-fail {
+      background: var(--fail-bg);
+      color: var(--fail);
+      border: 1px solid var(--fail-bd)
+    }
+
+    .stag-na {
+      background: #f1f5f9;
+      color: var(--muted);
+      border: 1px solid var(--border2)
+    }
+
+    /* risk bar cell */
+    .risk-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px
+    }
+
+    .risk-bar {
+      width: 72px;
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden
+    }
+
+    .risk-fill {
+      height: 100%;
+      border-radius: 999px
+    }
+
+    .rf-low {
+      background: linear-gradient(90deg, #059669, #34d399)
+    }
+
+    .rf-mid {
+      background: linear-gradient(90deg, #d97706, #fbbf24)
+    }
+
+    .rf-high {
+      background: linear-gradient(90deg, #dc2626, #f87171)
+    }
+
+    .risk-pct {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 700
+    }
+
+    .rp-low {
+      color: var(--pass)
+    }
+
+    .rp-mid {
+      color: var(--near)
+    }
+
+    .rp-high {
+      color: var(--fail)
+    }
+
+    /* fuzzy term */
+    .fterm {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      background: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 6px;
+      display: inline-block
+    }
+
+    /* ── TWO COL ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    @media(max-width:640px) {
+      .two-col {
+        grid-template-columns: 1fr
+      }
+    }
+
+    /* ── RECOMMENDATION ── */
+    .rec-box {
+      background: var(--sky-lt);
+      border: 1px solid var(--sky-bd);
+      border-radius: 11px;
+      padding: 14px 16px
+    }
+
+    .rec-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #0369a1;
+      line-height: 1.55
+    }
+
+    .rec-item:last-child {
+      margin-bottom: 0
+    }
+
+    .rec-item i {
+      color: var(--sky);
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-size: 13px
+    }
+
+    .rec-sep {
+      border: none;
+      border-top: 1px dashed rgba(3, 105, 161, .2);
+      margin: 8px 0
+    }
+
+    /* ── SIGN ── */
+    .sign-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 10px
+    }
+
+    .sign-box {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .sign-line {
+      height: 44px;
+      border-bottom: 2px dashed var(--border2);
+      margin-bottom: 8px
+    }
+
+    .sign-name {
+      font-weight: 600;
+      color: var(--navy);
+      font-size: 12px;
+      margin-bottom: 3px
+    }
+
+    /* ── EXPORT BAR ── */
+    .export-bar {
+      background: linear-gradient(135deg, #fff5f5, #fff);
+      border: 1px solid var(--fail-bd);
+      border-radius: 13px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px
+    }
+
+    .export-bar-msg {
+      font-size: 12px;
+      color: #7f1d1d;
+      display: flex;
+      align-items: center;
+      gap: 9px
+    }
+
+    .export-bar-msg i {
+      font-size: 18px;
+      color: var(--fail)
+    }
+
+    /* ── NOTE / FLASH ── */
+    .note-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 9px;
+      padding: 10px 13px;
+      font-size: 12px;
+      color: #78350f;
+      margin-bottom: 10px
+    }
+
+    .alert-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      border: 1px solid;
+      margin-bottom: 8px
+    }
+
+    .alert-success {
+      background: var(--pass-bg);
+      border-color: var(--pass-bd);
+      color: #064e3b
+    }
+
+    .alert-danger,
+    .alert-error {
+      background: var(--fail-bg);
+      border-color: var(--fail-bd);
+      color: #7f1d1d
+    }
+
+    .alert-warning {
+      background: var(--near-bg);
+      border-color: var(--near-bd);
+      color: #78350f
+    }
+
+    .flex-gap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center
+    }
+
+    /* info table (no-result mode) */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px
+    }
+
+    .info-table td {
+      padding: 8px 11px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .info-table td:first-child {
+      font-weight: 600;
+      color: var(--muted);
+      width: 38%;
+      background: #f8fafc
+    }
+
+    .info-table tr:last-child td {
+      border-bottom: none
+    }
+
+    /* scroll hint */
+    .scroll-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch
+    }
+    /* ═══════════ DARK MODE — comprehensive ═══════════ */
+    html.dark {
+      --navy: #0a1929;
+      --navy2: #122438;
+      --bg: #0a1929;
+      --card: #122438;
+      --border: rgba(56, 189, 248, 0.18);
+      --muted: #94a3b8;
+      --pass-bg: rgba(5, 150, 105, 0.18);
+      --pass-bd: rgba(110, 231, 183, 0.30);
+      --near-bg: rgba(217, 119, 6, 0.18);
+      --near-bd: rgba(252, 211, 77, 0.30);
+      --fail-bg: rgba(220, 38, 38, 0.18);
+      --fail-bd: rgba(252, 165, 165, 0.30);
+      --sky-lt: rgba(14, 165, 233, 0.10);
+      --sky-bd: rgba(56, 189, 248, 0.30);
+    }
+    html.dark body {
+      background: #0a1929 !important;
+      color: #e2e8f0;
+    }
+    /* Page header & title areas */
+    html.dark .page-header,
+    html.dark .breadcrumb-bar {
+      background: linear-gradient(135deg, #0f1f33, #122438) !important;
+      color: #e2e8f0;
+    }
+    html.dark .ph-title,
+    html.dark .ph-sub,
+    html.dark .ph-left { color: #e2e8f0 !important; }
+    /* Cards */
+    html.dark .card {
+      background: #122438 !important;
+      border: 1px solid rgba(56, 189, 248, 0.18) !important;
+      color: #e2e8f0;
+    }
+    html.dark .card-title { color: #e2e8f0 !important; }
+    html.dark .card-hint { color: #94a3b8 !important; }
+    /* Hero (Score banner) */
+    html.dark .hero {
+      background: linear-gradient(135deg, #0f1f33 0%, #1e3a6e 100%) !important;
+      color: #fff;
+    }
+    html.dark .hero-msg { color: rgba(255,255,255,.85) !important; }
+    html.dark .score-num,
+    html.dark .score-label { color: #fff !important; }
+    /* Meta chips */
+    html.dark .meta-chip {
+      background: rgba(56, 189, 248, 0.10) !important;
+      color: #93c5fd !important;
+      border-color: rgba(56, 189, 248, 0.30) !important;
+    }
+    /* Compliance bar */
+    html.dark .compliance-wrap {
+      background: linear-gradient(to right, #0f1f33, #122438) !important;
+      border-color: rgba(56, 189, 248, 0.18) !important;
+    }
+    html.dark .comp-bar-track { background: rgba(255, 255, 255, 0.08) !important; }
+    html.dark .comp-pct { color: #e2e8f0 !important; }
+    /* PARAMETER TABLE — main fix */
+    html.dark .table-outer {
+      background: #122438 !important;
+      border-color: rgba(56, 189, 248, 0.18) !important;
+    }
+    html.dark .param-table thead tr {
+      background: #0a1929 !important;
+    }
+    html.dark .param-table th {
+      color: rgba(255, 255, 255, 0.82) !important;
+      border-bottom-color: rgba(56, 189, 248, 0.30) !important;
+    }
+    html.dark .param-table tbody tr:nth-child(odd) td {
+      background: #122438 !important;
+    }
+    html.dark .param-table tbody tr:nth-child(even) td {
+      background: #0f1f33 !important;
+    }
+    html.dark .param-table tbody tr:hover td {
+      background: rgba(14, 165, 233, 0.12) !important;
+    }
+    html.dark .param-table td {
+      border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+      color: #e2e8f0 !important;
+    }
+    html.dark .pname,
+    html.dark .pval,
+    html.dark .pstd,
+    html.dark .fterm { color: #e2e8f0 !important; }
+    html.dark .pstd { color: #94a3b8 !important; }
+    /* .fterm pill background — เดิมเป็น #f1f5f9 (สีอ่อน) ใน dark mode ต้องเปลี่ยน */
+    html.dark .fterm {
+      background: rgba(56, 189, 248, 0.12) !important;
+      color: #93c5fd !important;
+      border: 1px solid rgba(56, 189, 248, 0.20) !important;
+    }
+    /* .stag-na pill — เดิมเป็น #f1f5f9 */
+    html.dark .stag-na {
+      background: rgba(100, 116, 139, 0.22) !important;
+      color: #cbd5e1 !important;
+    }
+    /* .param-table (อาจ override สีเดิม) */
+    html.dark .param-table {
+      background: #122438 !important;
+    }
+    /* .compliance-wrap gradient เดิมเป็นขาว */
+    html.dark .compliance-wrap {
+      background: linear-gradient(to right, #0f1f33, #122438) !important;
+    }
+    /* Pass/Near/Fail value colors (use brighter for dark mode) */
+    html.dark .pval-pass { color: #6ee7b7 !important; }
+    html.dark .pval-near { color: #fcd34d !important; }
+    html.dark .pval-fail { color: #fca5a5 !important; }
+    html.dark .pval-na   { color: #94a3b8 !important; }
+    /* Status badges */
+    html.dark .stag-pass {
+      background: rgba(5, 150, 105, 0.22) !important;
+      color: #6ee7b7 !important;
+      border-color: rgba(110, 231, 183, 0.30) !important;
+    }
+    html.dark .stag-near {
+      background: rgba(217, 119, 6, 0.22) !important;
+      color: #fcd34d !important;
+      border-color: rgba(252, 211, 77, 0.30) !important;
+    }
+    html.dark .stag-fail {
+      background: rgba(220, 38, 38, 0.22) !important;
+      color: #fca5a5 !important;
+      border-color: rgba(252, 165, 165, 0.30) !important;
+    }
+    html.dark .stag-na {
+      background: rgba(100, 116, 139, 0.22) !important;
+      color: #cbd5e1 !important;
+    }
+    /* Row accent colors (left border) */
+    html.dark .param-table tbody tr.row-unreg td {
+      background: rgba(100, 116, 139, 0.10) !important;
+    }
+    /* Risk bar */
+    html.dark .risk-bar { background: rgba(255, 255, 255, 0.10) !important; }
+    /* Compliance pills (the small pill summary at top) */
+    html.dark .cp-pass {
+      background: rgba(5, 150, 105, 0.22) !important;
+      color: #6ee7b7 !important;
+      border-color: rgba(110, 231, 183, 0.30) !important;
+    }
+    html.dark .cp-near {
+      background: rgba(217, 119, 6, 0.22) !important;
+      color: #fcd34d !important;
+      border-color: rgba(252, 211, 77, 0.30) !important;
+    }
+    html.dark .cp-fail {
+      background: rgba(220, 38, 38, 0.22) !important;
+      color: #fca5a5 !important;
+      border-color: rgba(252, 165, 165, 0.30) !important;
+    }
+    /* Recommendations card */
+    html.dark .rec-box {
+      background: #0f1f33 !important;
+      border-color: rgba(56, 189, 248, 0.18) !important;
+    }
+    html.dark .rec-item {
+      color: #cbd5e1 !important;
+    }
+    html.dark .rec-sep {
+      border-color: rgba(255, 255, 255, 0.10) !important;
+    }
+    /* Notes */
+    html.dark .note-box {
+      background: rgba(100, 116, 139, 0.15) !important;
+      color: #cbd5e1 !important;
+      border-color: rgba(100, 116, 139, 0.30) !important;
+    }
+    /* Info table */
+    html.dark .info-table td,
+    html.dark .info-table th {
+      color: #e2e8f0 !important;
+      border-color: rgba(255, 255, 255, 0.06) !important;
+    }
+    /* Export bar */
+    html.dark .export-bar {
+      background: rgba(14, 165, 233, 0.10) !important;
+      color: #93c5fd !important;
+      border-color: rgba(56, 189, 248, 0.30) !important;
+    }
+    html.dark .export-bar-msg { color: #93c5fd !important; }
+    /* Buttons */
+    html.dark .btn-back {
+      background: rgba(255, 255, 255, 0.06) !important;
+      color: #e2e8f0 !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    html.dark .btn-back:hover {
+      background: rgba(255, 255, 255, 0.10) !important;
+    }
+    /* ── Nuclear catch-all: ensure all common containers go dark ── */
+    html.dark .pmt-tbl,
+    html.dark .summary-grid,
+    html.dark .meta-grid,
+    html.dark .filter-bar,
+    html.dark .breadcrumb-bar,
+    html.dark .top-strip,
+    html.dark .head-bar,
+    html.dark .info-table,
+    html.dark .sign-grid,
+    html.dark .pmt-table,
+    html.dark .stat-card,
+    html.dark .summary-card,
+    html.dark .compare-grid,
+    html.dark .filter-row,
+    html.dark .pond-card {
+      background: #122438 !important;
+      color: #e2e8f0 !important;
+      border-color: rgba(56, 189, 248, 0.18) !important;
+    }
+    html.dark table { color: #e2e8f0 !important; }
+    html.dark table th,
+    html.dark table td { border-color: rgba(255, 255, 255, 0.06) !important; }
+    html.dark table thead { background: #0a1929 !important; }
+    html.dark table thead th { color: rgba(255, 255, 255, 0.82) !important; }
+    html.dark tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+    html.dark tbody tr:hover { background: rgba(56, 189, 248, 0.08) !important; }
+    /* breadcrumb dark */
+    html.dark .breadcrumb-bar a { color: #93c5fd !important; }
+    html.dark .breadcrumb-bar span { color: #64748b !important; }
+    /* numerical "muted" text */
+    html.dark .muted,
+    html.dark .text-muted,
+    html.dark .form-hint,
+    html.dark .note-small { color: #94a3b8 !important; }
+    /* alert items dark */
+    html.dark .alert-item.alert-success {
+      background: rgba(5, 150, 105, 0.18) !important;
+      color: #6ee7b7 !important;
+      border-color: rgba(110, 231, 183, 0.30) !important;
+    }
+    html.dark .alert-item.alert-danger,
+    html.dark .alert-item.alert-error {
+      background: rgba(220, 38, 38, 0.18) !important;
+      color: #fca5a5 !important;
+      border-color: rgba(252, 165, 165, 0.30) !important;
+    }
+    html.dark .alert-item.alert-warning {
+      background: rgba(217, 119, 6, 0.18) !important;
+      color: #fcd34d !important;
+      border-color: rgba(252, 211, 77, 0.30) !important;
+    }
+    html.dark .alert-item.alert-info {
+      background: rgba(14, 165, 233, 0.18) !important;
+      color: #93c5fd !important;
+      border-color: rgba(56, 189, 248, 0.30) !important;
+    }
+  </style>
+</head>
+
+<body>
+  {% include "navbar.html" %}
+
+  <div class="page-wrap">
+
+    <!-- FLASH -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div style="margin-bottom:14px">
+      {% for cat, msg in messages %}
+      <div class="alert-item alert-{{ 'danger' if cat=='error' else cat }}">
+        <i class="bi bi-{% if cat=='success' %}check-circle-fill{% else %}exclamation-circle-fill{% endif %}"></i>
+        <div>{{ msg }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="ph-left">
+        <div class="ph-icon"><i class="bi bi-file-earmark-check"></i></div>
+        <div>
+          <div class="breadcrumb-bar">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <span style="color:var(--border2)">›</span>
+            <a href="{{ url_for('history') }}">ประวัติ</a>
+            <span style="color:var(--border2)">›</span>
+            <span>ผลประเมิน{% if result %} #{{ result.id }}{% endif %}</span>
+          </div>
+          <div class="ph-title">ผลการประเมินคุณภาพน้ำ</div>
+          <div class="ph-sub">{{ water_data.pond_name or '–' }} · {{ water_data.sample_date.strftime('%d/%m/%Y %H:%M')
+            if water_data.sample_date else '–' }}</div>
+        </div>
+      </div>
+      <div class="btn-group">
+        {% if result %}
+        <a href="{{ url_for('export_result_pdf', result_id=result.id) }}" class="btn-export" download>
+          <i class="bi bi-file-earmark-excel-fill"></i> Export Excel
+        </a>
+        {% endif %}
+        <a href="{{ url_for('edit_data', water_data_id=water_data.id) }}" class="btn-back">
+          <i class="bi bi-pencil"></i> แก้ไข
+        </a>
+        <a href="{{ url_for('history') }}" class="btn-back">
+          <i class="bi bi-arrow-left"></i> กลับ
+        </a>
+      </div>
+    </div>
+
+    {% if result %}
+    <!-- ══ HERO SCORE ══ -->
+    {% set score = result.overall_score %}
+    {% set status = result.overall_status %}
+    {% set circ = 283 %}
+    {% set offset = (circ - (score / 100 * circ)) | round if score is not none else circ %}
+    {% set rhex = '#059669' if status=='Pass' else '#d97706' if status=='Near Limit' else '#dc2626' %}
+
+    <div class="hero">
+      <!-- Ring -->
+      <div class="score-wrap">
+        <svg viewBox="0 0 120 120" width="120" height="120">
+          <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="10" />
+          <circle cx="60" cy="60" r="45" fill="none" stroke="{{ rhex }}" stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="{{ circ }}" stroke-dashoffset="{{ offset }}"
+            style="filter:drop-shadow(0 0 8px {{ rhex }}aa)" />
+        </svg>
+        <div class="score-center">
+          <div class="score-num">{{ score if score is not none else '–' }}</div>
+          <div class="score-label">/ 100</div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="hero-body">
+        <div
+          class="hero-status {% if status=='Pass' %}hs-pass{% elif status=='Near Limit' %}hs-near{% elif status=='Fail' %}hs-fail{% else %}hs-none{% endif %}">
+          {% if status=='Pass' %}<i class="bi bi-check-circle-fill"></i> ผ่านมาตรฐาน
+          {% elif status=='Near Limit' %}<i class="bi bi-exclamation-triangle-fill"></i> เฝ้าระวัง
+          {% elif status=='Fail' %}<i class="bi bi-x-circle-fill"></i> เกินมาตรฐาน
+          {% else %}<i class="bi bi-dash-circle"></i> ไม่มีข้อมูล{% endif %}
+        </div>
+        {% if result.overall_message %}
+        <div class="hero-msg">{{ result.overall_message }}</div>
+        {% endif %}
+        <div class="meta-row">
+          <span class="meta-chip"><i class="bi bi-geo-alt"></i>{{ water_data.sample_location or '–' }}</span>
+          <span class="meta-chip"><i class="bi bi-droplet-half"></i>{{ water_data.pond_name or '–' }}</span>
+          <span class="meta-chip" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:1px solid #60a5fa;color:#1e3a8a;font-weight:600">
+              <i class="bi bi-building"></i> อาคารประเภท {{ water_data.building_type or building_type or 'ก' }}</span>
+          <span class="meta-chip"><i class="bi bi-calendar3"></i>{{ water_data.sample_date.strftime('%d/%m/%Y') if
+            water_data.sample_date else '–' }}</span>
+          <span class="meta-chip"><i class="bi bi-person"></i>{{ water_data.user.username if water_data.user else '–'
+            }}</span>
+          <span class="meta-chip mono" style="font-family:'IBM Plex Mono',monospace">#{{ result.id }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PARAMETER TABLE ══ -->
+    <div class="card">
+      <div class="card-title">
+        <i class="bi bi-shield-check"></i> ผลรายพารามิเตอร์
+        <span class="card-hint">Risk Index = ระดับความเสี่ยงจาก Fuzzy Membership</span>
+      </div>
+
+      {% if parameter_results %}
+      <!-- อัตราผ่าน summary -->
+      {% set n_pass = namespace(v=0) %}{% set n_near = namespace(v=0) %}{% set n_fail = namespace(v=0) %}
+      {% for p in parameter_results %}
+      {% if p.data.get('status')=='Pass' %}{% set n_pass.v = n_pass.v + 1 %}
+      {% elif p.data.get('status')=='Near Limit' %}{% set n_near.v = n_near.v + 1 %}
+      {% elif p.data.get('status')=='Fail' %}{% set n_fail.v = n_fail.v + 1 %}{% endif %}
+      {% endfor %}
+      {% set n_tot = parameter_results | length %}
+      {% set pass_pct = (n_pass.v / n_tot * 100) | round(0) | int if n_tot > 0 else 0 %}
+
+      <div class="compliance-wrap">
+        <span class="comp-pill cp-pass"><i class="bi bi-check-circle-fill"></i> {{ n_pass.v }} ผ่าน</span>
+        <span class="comp-pill cp-near"><i class="bi bi-exclamation-triangle-fill"></i> {{ n_near.v }} ระวัง</span>
+        <span class="comp-pill cp-fail"><i class="bi bi-x-circle-fill"></i> {{ n_fail.v }} เกิน</span>
+        <div class="comp-bar-track">
+          <div class="comp-bar-fill" style="width:{{ pass_pct }}%"></div>
+        </div>
+        <span class="comp-pct">{{ pass_pct }}%</span>
+        <span style="font-size:11px;color:var(--muted)">อัตราผ่าน</span>
+      </div>
+
+      <div class="scroll-wrap">
+        <div class="table-outer">
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th style="width:18%">พารามิเตอร์</th>
+                <th style="width:11%">ค่าที่วัด</th>
+                <th style="width:9%">หน่วย</th>
+                <th style="width:12%">มาตรฐาน</th>
+                <th style="width:11%">สถานะ</th>
+                <th style="width:16%">Risk Index</th>
+                <th style="width:13%">Fuzzy Term</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in parameter_results %}
+              {% set d = p.data %}
+              {% set st = d.get('status','N/A') %}
+              {% set rp = d.get('risk_percent', 0) or 0 %}
+              {% set is_unreg = (d.get('regulated') == false) or (st == 'ไม่กำหนด') %}
+              <tr
+                class="{% if is_unreg %}row-unreg{% elif st=='Pass' %}row-pass{% elif st=='Near Limit' %}row-near{% elif st=='Fail' %}row-fail{% endif %}"
+                {% if is_unreg %}style="opacity:.6"{% endif %}>
+
+                <!-- ชื่อ -->
+                <td><span class="pname">{{ p.name }}</span></td>
+
+                <!-- ค่า -->
+                <td>
+                  <span
+                    class="pval {% if is_unreg %}pval-na{% elif st=='Pass' %}pval-pass{% elif st=='Near Limit' %}pval-near{% elif st=='Fail' %}pval-fail{% else %}pval-na{% endif %}">
+                    {{ '%.2f'|format(d.get('value')) if d.get('value') is not none else '–' }}
+                  </span>
+                </td>
+
+                <!-- หน่วย -->
+                <td><span class="pstd">{{ d.get('unit','') or '–' }}</span></td>
+
+                <!-- มาตรฐาน -->
+                <td>
+                  {% if is_unreg %}
+                    <span class="pstd" style="color:#94a3b8;font-style:italic">ไม่กำหนด</span>
+                  {% else %}
+                    <span class="pstd">{{ d.get('standard','–') }}</span>
+                  {% endif %}
+                </td>
+
+                <!-- สถานะ -->
+                <td>
+                  {% if is_unreg %}<span class="stag stag-na" style="background:#e2e8f0;color:#475569" title="ไม่อยู่ในข้อบังคับสำหรับอาคารประเภทนี้"><i class="bi bi-dash-circle"></i> ไม่กำหนด</span>
+                  {% elif st=='Pass' %}<span class="stag stag-pass"><i class="bi bi-check-circle-fill"></i> ผ่าน</span>
+                  {% elif st=='Near Limit' %}<span class="stag stag-near"><i
+                      class="bi bi-exclamation-triangle-fill"></i> ระวัง</span>
+                  {% elif st=='Fail' %}<span class="stag stag-fail"><i class="bi bi-x-circle-fill"></i> เกิน</span>
+                  {% else %}<span class="stag stag-na">N/A</span>{% endif %}
+                </td>
+
+                <!-- Risk bar -->
+                <td>
+                  <div class="risk-cell">
+                    {% if is_unreg %}
+                      <span style="color:#94a3b8;font-style:italic;font-size:11px">—</span>
+                    {% else %}
+                    <div class="risk-bar">
+                      <div class="risk-fill {% if rp<30 %}rf-low{% elif rp<60 %}rf-mid{% else %}rf-high{% endif %}"
+                        style="width:{{ [rp,100]|min }}%"></div>
+                    </div>
+                    <span class="risk-pct {% if rp<30 %}rp-low{% elif rp<60 %}rp-mid{% else %}rp-high{% endif %}">
+                      {{ rp }}%
+                    </span>
+                    {% endif %}
+                  </div>
+                </td>
+
+                <!-- Fuzzy term -->
+                <td>
+                  {% if is_unreg %}<span class="fterm" style="color:#94a3b8">–</span>
+                  {% else %}<span class="fterm">{{ d.get('dominant_term','–') }}</span>{% endif %}
+                </td>
+
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {% else %}
+      <div style="text-align:center;padding:2.5rem;color:var(--muted)">
+        <i class="bi bi-inbox" style="font-size:2.5rem;opacity:.35"></i>
+        <p style="margin-top:10px;font-size:13px">ยังไม่มีผลประเมินรายพารามิเตอร์</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ══ ข้อเสนอแนะ ══ -->
+    <div class="card">
+        <div class="card-title"><i class="bi bi-lightbulb"></i> ข้อเสนอแนะ</div>
+        {% set status = result.overall_status %}
+        <div class="rec-box">
+          {% if status == 'Pass' %}
+          <div class="rec-item"><i class="bi bi-check-circle-fill"></i><span>คุณภาพน้ำอยู่ในเกณฑ์ดี
+              ควรรักษาระดับการดูแลระบบบำบัดอย่างสม่ำเสมอ</span></div>
+          <div class="rec-item"><i class="bi bi-calendar-check"></i><span>ตรวจวัดต่อเนื่องตามรอบที่กำหนด
+              เพื่อติดตามแนวโน้ม</span></div>
+          {% elif status == 'Near Limit' %}
+          <div class="rec-item"><i class="bi bi-exclamation-triangle-fill"></i><span>ค่าบางพารามิเตอร์ใกล้เกินมาตรฐาน
+              ควรเพิ่มความถี่การตรวจวัด</span></div>
+          <div class="rec-item"><i class="bi bi-gear"></i><span>ตรวจสอบประสิทธิภาพระบบบำบัด โดยเฉพาะพารามิเตอร์ที่มี
+              Risk Index สูง</span></div>
+          <div class="rec-item"><i class="bi bi-person-check"></i><span>รายงานผลต่อผู้รับผิดชอบเพื่อวางแผนแก้ไข</span>
+          </div>
+          {% else %}
+          <div class="rec-item"><i class="bi bi-x-circle-fill" style="color:var(--fail)"></i><span>พบค่าเกินมาตรฐาน
+              ต้องดำเนินการแก้ไขทันที</span></div>
+          <div class="rec-item"><i class="bi bi-wrench"></i><span>ตรวจสอบและซ่อมบำรุงระบบบำบัด —
+              พิจารณาเพิ่มปริมาณสารเคมีหรือปรับกระบวนการ</span></div>
+          <div class="rec-item"><i class="bi bi-telephone"></i><span>แจ้งหน่วยงานกำกับดูแล
+              กรณีเกินมาตรฐานอย่างมีนัยสำคัญ</span></div>
+          <div class="rec-item"><i class="bi bi-arrow-repeat"></i><span>เก็บตัวอย่างซ้ำหลังแก้ไข เพื่อยืนยันผล</span>
+          </div>
+          {% endif %}
+          <hr class="rec-sep">
+          <div class="rec-item" style="font-size:11px;color:#4a7c9e">
+            <i class="bi bi-book"></i>
+            <span>อ้างอิง: กรมควบคุมมลพิษ (2566) · WHO Guidelines (2004) · Metcalf &amp; Eddy (2014)</span>
+          </div>
+        </div>
+    </div>
+
+    <!-- ══ EXPORT BAR ══ -->
+    <div class="export-bar">
+      <div class="export-bar-msg">
+        <i class="bi bi-file-earmark-excel-fill"></i>
+        <span>ดาวน์โหลดรายงานฉบับสมบูรณ์ พร้อม Risk Index · Fuzzy Term · ลายเซ็น</span>
+      </div>
+      <a href="{{ url_for('export_result_pdf', result_id=result.id) }}" class="btn-export" download>
+        <i class="bi bi-download"></i> ดาวน์โหลด Excel
+      </a>
+    </div>
+
+    {% else %}
+    <!-- ไม่มี result -->
+    <div class="card">
+      <div class="card-title"><i class="bi bi-info-circle"></i> ข้อมูลตัวอย่าง</div>
+      <table class="info-table">
+        <tr>
+          <td>บ่อ / ระบบบำบัด</td>
+          <td>{{ water_data.pond_name or '–' }}</td>
+        </tr>
+        <tr>
+          <td>สถานที่</td>
+          <td>{{ water_data.sample_location or '–' }}</td>
+        </tr>
+        <tr>
+          <td>ประเภทตัวอย่าง</td>
+          <td>{{ water_data.sample_type or '–' }}</td>
+        </tr>
+        <tr>
+          <td>วันที่เก็บตัวอย่าง</td>
+          <td>{{ water_data.sample_date.strftime('%d/%m/%Y %H:%M') if water_data.sample_date else '–' }}</td>
+        </tr>
+      </table>
+      <div class="note-box" style="margin-top:14px">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        ไม่พบผลการประเมิน Fuzzy — อาจเป็นเพราะข้อมูลไม่ครบ 11 พารามิเตอร์ หรือไม่ใช่ประเภท "หลังบำบัด"
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1154 @@
+{# templates/navbar.html #}
+<nav class="wq-navbar">
+  <a class="wq-brand" href="{{ url_for('dashboard') }}">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C8.5 8 4 12.5 4 16.5a8 8 0 0016 0C20 12.5 15.5 8 12 2z" />
+    </svg>
+    Water Quality
+  </a>
+
+  <div class="wq-nav-links">
+    <a class="wq-nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+      </svg>
+      Dashboard
+    </a>
+    <a class="wq-nav-link {% if request.endpoint == 'add_data' %}active{% endif %}" href="{{ url_for('add_data') }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="16" />
+        <line x1="8" y1="12" x2="16" y2="12" />
+      </svg>
+      เพิ่มข้อมูล
+    </a>
+    <a class="wq-nav-link {% if request.endpoint == 'upload_data' %}active{% endif %}"
+      href="{{ url_for('upload_data') }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+        <polyline points="17 8 12 3 7 8" />
+        <line x1="12" y1="3" x2="12" y2="15" />
+      </svg>
+      อัปโหลด
+    </a>
+    <a class="wq-nav-link {% if request.endpoint == 'history' %}active{% endif %}" href="{{ url_for('history') }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+      ประวัติ
+    </a>
+  </div>
+
+  <!-- ── Hamburger + Dropdown ── -->
+  <div class="wq-menu-wrap">
+    <button class="wq-hamburger" id="wqMenuBtn" onclick="wqToggleMenu()" aria-label="เมนู">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="wq-dropdown" id="wqDropdown">
+
+      <!-- Dark Mode -->
+      <div class="wq-dd-item" onclick="wqToggleDark()">
+        <div class="wq-dd-icon" id="wqDarkIconWrap">
+          <svg id="wqDarkIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </div>
+        <div class="wq-dd-label">
+          <div class="wq-dd-title" id="wqDarkLabel">Dark Mode</div>
+          <div class="wq-dd-sub">ปรับธีมหน้าจอ</div>
+        </div>
+        <div class="wq-toggle-track" id="wqToggleTrack">
+          <div class="wq-toggle-thumb"></div>
+        </div>
+      </div>
+
+      <div class="wq-dd-divider"></div>
+
+      <!-- Logout -->
+      <a class="wq-dd-item wq-dd-logout" href="{{ url_for('logout') }}">
+        <div class="wq-dd-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </div>
+        <div class="wq-dd-label">
+          <div class="wq-dd-title">ออกจากระบบ</div>
+          <div class="wq-dd-sub">{{ current_user.username if current_user.is_authenticated else '' }}</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          style="color:#dc2626;opacity:.5">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </a>
+
+    </div>
+  </div>
+</nav>
+
+<style>
+  .wq-navbar {
+    height: 48px;
+    background: #0f2744;
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    border-bottom: 1px solid rgba(255, 255, 255, .07);
+  }
+
+  .wq-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .9rem;
+    white-space: nowrap;
+    margin-right: .5rem;
+  }
+
+  .wq-brand svg {
+    color: #38bdf8;
+    flex-shrink: 0;
+  }
+
+  .wq-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .wq-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: .4rem .85rem;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, .7);
+    text-decoration: none;
+    font-size: .82rem;
+    font-weight: 500;
+    transition: background .15s, color .15s;
+    white-space: nowrap;
+  }
+
+  .wq-nav-link:hover {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+  }
+
+  .wq-nav-link.active {
+    background: rgba(255, 255, 255, .15);
+    color: #fff;
+  }
+
+  /* HAMBURGER */
+  .wq-menu-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .wq-hamburger {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: background .15s;
+    padding: 0;
+  }
+
+  .wq-hamburger:hover {
+    background: rgba(255, 255, 255, .16);
+  }
+
+  .wq-hamburger span {
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    background: rgba(255, 255, 255, .85);
+    border-radius: 2px;
+    transition: all .22s ease;
+    transform-origin: center;
+  }
+
+  /* Animate to X when open */
+  .wq-hamburger.open span:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+
+  .wq-hamburger.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .wq-hamburger.open span:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+
+  /* DROPDOWN */
+  .wq-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: #fff;
+    border: 1px solid rgba(15, 39, 68, .12);
+    border-radius: 13px;
+    min-width: 240px;
+    box-shadow: 0 20px 60px rgba(15, 39, 68, .18), 0 4px 16px rgba(15, 39, 68, .08);
+    overflow: hidden;
+    z-index: 300;
+    animation: ddIn .15s ease;
+  }
+
+  .wq-dropdown.open {
+    display: block;
+  }
+
+  @keyframes ddIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(.97);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .wq-dd-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background .12s;
+    text-decoration: none;
+    color: inherit;
+    border: none;
+    width: 100%;
+    background: none;
+    text-align: left;
+    font-family: 'Sarabun', sans-serif;
+  }
+
+  .wq-dd-item:hover {
+    background: #f8fafc;
+  }
+
+  .wq-dd-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #64748b;
+    transition: background .15s;
+  }
+
+  .wq-dd-label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .wq-dd-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f2744;
+    line-height: 1.3;
+  }
+
+  .wq-dd-sub {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 1px;
+  }
+
+  .wq-dd-divider {
+    height: 1px;
+    background: rgba(15, 39, 68, .07);
+  }
+
+  /* Logout */
+  .wq-dd-logout .wq-dd-icon {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .wq-dd-logout .wq-dd-title {
+    color: #dc2626;
+  }
+
+  .wq-dd-logout:hover {
+    background: #fff5f5;
+  }
+
+  /* TOGGLE SWITCH */
+  .wq-toggle-track {
+    width: 40px;
+    height: 22px;
+    border-radius: 11px;
+    background: #e2e8f0;
+    position: relative;
+    transition: background .22s;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .wq-toggle-track.on {
+    background: #0ea5e9;
+  }
+
+  .wq-toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
+    transition: transform .22s ease;
+  }
+
+  .wq-toggle-track.on .wq-toggle-thumb {
+    transform: translateX(18px);
+  }
+
+  /* ═══ DARK MODE — CSS Variables Override ═══ */
+  html.dark {
+    color-scheme: dark;
+    /* override ทุก CSS variable ที่ใช้ทั่วระบบ */
+    --navy: #e2e8f0;
+    --navy2: #cbd5e1;
+    --muted: #94a3b8;
+    --border: rgba(255, 255, 255, .07);
+    --border2: rgba(255, 255, 255, .12);
+    --card: #152235;
+    --bg: #0b1828;
+    --sky-lt: rgba(14, 165, 233, .12);
+    --sky-bd: rgba(14, 165, 233, .25);
+    --pass-bg: rgba(5, 150, 105, .12);
+    --pass-bd: rgba(5, 150, 105, .25);
+    --near-bg: rgba(217, 119, 6, .12);
+    --near-bd: rgba(217, 119, 6, .25);
+    --fail-bg: rgba(220, 38, 38, .12);
+    --fail-bd: rgba(220, 38, 38, .25);
+  }
+
+  /* ── Body & Base ── */
+  html.dark body {
+    background: #0b1828 !important;
+    color: #e2e8f0 !important;
+  }
+
+  /* ── Cards / Containers ── */
+  html.dark .card,
+  html.dark .content-card,
+  html.dark .login-card,
+  html.dark .explainer,
+  html.dark .pond-card {
+    background: #152235 !important;
+    border-color: rgba(255, 255, 255, .07) !important;
+  }
+
+  html.dark .sidebar {
+    background: #0f1e30 !important;
+    border-color: rgba(255, 255, 255, .07) !important;
+  }
+
+  html.dark .kpi,
+  html.dark .stat-card,
+  html.dark .red-box,
+  html.dark .stage-node,
+  html.dark .type-lbl,
+  html.dark .pond-item,
+  html.dark .upload-zone {
+    background: #1a2d42 !important;
+    border-color: rgba(255, 255, 255, .08) !important;
+  }
+
+  html.dark .kpi-icon {
+    color: rgba(255, 255, 255, .07) !important;
+  }
+
+  /* ── Headings / Labels / Text ── */
+  html.dark .ph-title,
+  html.dark .card-head-title,
+  html.dark .sec-head,
+  html.dark .sb-lbl,
+  html.dark .form-label,
+  html.dark .field-label,
+  html.dark .sn-name,
+  html.dark .pc-name,
+  html.dark .pond-name,
+  html.dark .kpi-lbl,
+  html.dark .kpi-sub,
+  html.dark .red-lbl,
+  html.dark .loc-name,
+  html.dark .brand-title,
+  html.dark .wq-dd-title,
+  html.dark h1,
+  html.dark h2,
+  html.dark h3,
+  html.dark h4,
+  html.dark h5,
+  html.dark h6 {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .ph-sub,
+  html.dark .pond-loc,
+  html.dark .cell-pond,
+  html.dark .cell-date-sub,
+  html.dark .form-hint,
+  html.dark .sn-k,
+  html.dark .stat-lbl,
+  html.dark .pbar-name,
+  html.dark .ring-sub,
+  html.dark .score-date,
+  html.dark .pond-type-badge,
+  html.dark .loc-sub,
+  html.dark .sec-badge,
+  html.dark .wq-dd-sub,
+  html.dark .brand-sub {
+    color: #94a3b8 !important;
+  }
+
+  html.dark .row-num {
+    color: #64748b !important;
+  }
+
+  /* ── Form Elements ── */
+  html.dark .form-control,
+  html.dark .form-select,
+  html.dark .field-input,
+  html.dark .sb-select,
+  html.dark .date-input,
+  html.dark .filter-input,
+  html.dark .filter-select,
+  html.dark .snap-sel {
+    background: #1a2d42 !important;
+    border-color: rgba(255, 255, 255, .1) !important;
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .form-control:focus,
+  html.dark .field-input:focus {
+    background: #1f3550 !important;
+  }
+
+  html.dark .form-control::placeholder,
+  html.dark .field-input::placeholder {
+    color: #64748b !important;
+  }
+
+  /* ── Buttons ── */
+  html.dark .btn-back,
+  html.dark .btn-cancel,
+  html.dark .btn-reset,
+  html.dark .dt:not(.active),
+  html.dark .qbtn:not(:hover),
+  html.dark .chart-tab:not(.active),
+  html.dark .pag-btn:not(.active) {
+    background: #1a2d42 !important;
+    color: #94a3b8 !important;
+    border-color: rgba(255, 255, 255, .1) !important;
+  }
+
+  html.dark .btn-back:hover,
+  html.dark .pag-btn:hover {
+    background: #243450 !important;
+    color: #e2e8f0 !important;
+  }
+
+  /* ── Bars / Sections ── */
+  html.dark .card-head,
+  html.dark .sec-head,
+  html.dark .filter-bar,
+  html.dark .stat-chips,
+  html.dark .pag-bar,
+  html.dark .pond-foot,
+  html.dark .pond-card-top,
+  html.dark .snap-bar,
+  html.dark .loc-header {
+    background: #0f1e30 !important;
+    border-color: rgba(255, 255, 255, .06) !important;
+  }
+
+  html.dark .status-banner {
+    background: #071525 !important;
+  }
+
+  html.dark .action-bar {
+    background: rgba(11, 24, 40, .94) !important;
+    border-color: rgba(255, 255, 255, .07) !important;
+  }
+
+  html.dark .sb-inner {
+    background: #0f1e30 !important;
+  }
+
+  /* ── Tables ── */
+  html.dark .data-table td,
+  html.dark .heat-table td,
+  html.dark .col-table td {
+    border-color: rgba(255, 255, 255, .06) !important;
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .data-table tr:hover td,
+  html.dark .heat-table tr:hover td {
+    background: rgba(255, 255, 255, .03) !important;
+  }
+
+  html.dark .param-row {
+    background: #1a2d42 !important;
+    border-color: rgba(255, 255, 255, .08) !important;
+  }
+
+  html.dark .param-row:hover {
+    background: rgba(14, 165, 233, .08) !important;
+  }
+
+  /* ── Note/Info Boxes ── */
+  html.dark .note-box {
+    background: rgba(217, 119, 6, .1) !important;
+    border-color: rgba(217, 119, 6, .25) !important;
+    color: #fcd34d !important;
+  }
+
+  html.dark .info-box {
+    background: rgba(14, 165, 233, .08) !important;
+    border-color: rgba(14, 165, 233, .2) !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .warn-box {
+    background: rgba(217, 119, 6, .1) !important;
+    border-color: rgba(217, 119, 6, .2) !important;
+    color: #fcd34d !important;
+  }
+
+  html.dark .alert-item.alert-success {
+    background: rgba(5, 150, 105, .1) !important;
+    color: #6ee7b7 !important;
+  }
+
+  html.dark .alert-item.alert-danger {
+    background: rgba(220, 38, 38, .1) !important;
+    color: #fca5a5 !important;
+  }
+
+  html.dark .alert-item.alert-info {
+    background: rgba(14, 165, 233, .1) !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .alert-item.alert-warning {
+    background: rgba(217, 119, 6, .1) !important;
+    color: #fcd34d !important;
+  }
+
+  /* ── Check/Upload ── */
+  html.dark .check-row {
+    background: #1a2d42 !important;
+    border-color: rgba(255, 255, 255, .08) !important;
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .file-info {
+    background: rgba(5, 150, 105, .1) !important;
+    border-color: rgba(5, 150, 105, .2) !important;
+  }
+
+  html.dark .fi-name {
+    color: #6ee7b7 !important;
+  }
+
+  html.dark .fi-size {
+    color: #34d399 !important;
+  }
+
+  /* ── Misc ── */
+  html.dark .mini-bar,
+  html.dark .pbar-track {
+    background: #1a2d42 !important;
+  }
+
+  html.dark .ring-bg {
+    stroke: #1e3550 !important;
+  }
+
+  html.dark .divider {
+    background: rgba(255, 255, 255, .07) !important;
+  }
+
+  html.dark .sb-divider {
+    background: rgba(255, 255, 255, .07) !important;
+  }
+
+  html.dark .loc-status-bar {
+    background: #1a2d42 !important;
+  }
+
+  html.dark .refresh-bar {
+    background: rgba(14, 165, 233, .08) !important;
+    border-color: rgba(14, 165, 233, .2) !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .refresh-progress {
+    background: rgba(14, 165, 233, .2) !important;
+  }
+
+  html.dark code {
+    background: rgba(14, 165, 233, .12) !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .wq-footer {
+    background: #07111d !important;
+    color: rgba(255, 255, 255, .3) !important;
+  }
+
+  /* ── Pond card border-left colors — keep semantic colors ── */
+  html.dark .pond-card.pc-pass {
+    border-left-color: #059669 !important;
+  }
+
+  html.dark .pond-card.pc-near {
+    border-left-color: #d97706 !important;
+  }
+
+  html.dark .pond-card.pc-fail {
+    border-left-color: #dc2626 !important;
+  }
+
+  html.dark .data-table tr.tr-pass td:first-child {
+    border-left-color: #059669 !important;
+  }
+
+  html.dark .data-table tr.tr-near td:first-child {
+    border-left-color: #d97706 !important;
+  }
+
+  html.dark .data-table tr.tr-fail td:first-child {
+    border-left-color: #dc2626 !important;
+  }
+
+  /* ── Login page specific ── */
+  html.dark .login-top {
+    background: #071525 !important;
+  }
+
+  html.dark .login-body {
+    background: #152235 !important;
+  }
+
+  html.dark .section-label {
+    color: #94a3b8 !important;
+  }
+
+  html.dark .input-icon {
+    color: #64748b !important;
+  }
+
+  html.dark .toggle-pw {
+    color: #64748b !important;
+  }
+
+  html.dark .check-wrap span {
+    color: #94a3b8 !important;
+  }
+
+  html.dark .feature-row {
+    background: #0f1e30 !important;
+    border-color: rgba(255, 255, 255, .06) !important;
+  }
+
+  html.dark .feat {
+    color: #94a3b8 !important;
+  }
+
+  html.dark .login-footer {
+    color: #64748b !important;
+  }
+
+  /* ── Dropdown (navbar) ── */
+  html.dark .wq-dropdown {
+    background: #1a2d42 !important;
+    border-color: rgba(255, 255, 255, .1) !important;
+  }
+
+  html.dark .wq-dd-title {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .wq-dd-sub {
+    color: #94a3b8 !important;
+  }
+
+  html.dark .wq-dd-item:hover {
+    background: rgba(255, 255, 255, .05) !important;
+  }
+
+  html.dark .wq-dd-icon {
+    background: rgba(255, 255, 255, .06) !important;
+    color: #94a3b8 !important;
+  }
+
+  html.dark .wq-dd-divider {
+    background: rgba(255, 255, 255, .07) !important;
+  }
+
+  html.dark .wq-dd-logout .wq-dd-icon {
+    background: rgba(220, 38, 38, .15) !important;
+    color: #fca5a5 !important;
+  }
+
+  html.dark .wq-dd-logout .wq-dd-title {
+    color: #fca5a5 !important;
+  }
+
+  /* ── Active Buttons / Highlighted tabs ── */
+  html.dark .dt.active,
+  html.dark .qbtn.active,
+  html.dark .chart-tab.active {
+    background: #0ea5e9 !important;
+    color: #fff !important;
+    border-color: #0ea5e9 !important;
+  }
+
+  html.dark .chip-all.active {
+    background: rgba(14, 165, 233, .25) !important;
+    border-color: #0ea5e9 !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .chip-pass.active {
+    background: rgba(5, 150, 105, .25) !important;
+    border-color: #059669 !important;
+    color: #6ee7b7 !important;
+  }
+
+  html.dark .chip-near.active {
+    background: rgba(217, 119, 6, .25) !important;
+    border-color: #d97706 !important;
+    color: #fcd34d !important;
+  }
+
+  html.dark .chip-fail.active {
+    background: rgba(220, 38, 38, .25) !important;
+    border-color: #dc2626 !important;
+    color: #fca5a5 !important;
+  }
+
+  html.dark .chip-skip.active {
+    background: rgba(100, 116, 139, .25) !important;
+    border-color: #64748b !important;
+    color: #cbd5e1 !important;
+  }
+
+  html.dark .chip:not(.active) {
+    opacity: .55 !important;
+  }
+
+  html.dark .chip:hover {
+    opacity: .9 !important;
+  }
+
+  html.dark .pond-item.selected {
+    background: rgba(14, 165, 233, .12) !important;
+    border-color: #0ea5e9 !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .pond-item .pi-name {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .type-opt input:checked+.type-lbl {
+    background: rgba(14, 165, 233, .15) !important;
+    border-color: #0ea5e9 !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .type-lbl i {
+    color: #64748b !important;
+  }
+
+  html.dark .type-opt input:checked+.type-lbl i {
+    color: #38bdf8 !important;
+  }
+
+  html.dark .stage-node.sn-active {
+    background: rgba(14, 165, 233, .12) !important;
+    border-color: #0ea5e9 !important;
+  }
+
+  html.dark .stage-node:hover {
+    background: rgba(14, 165, 233, .08) !important;
+    border-color: #0ea5e9 !important;
+  }
+
+  html.dark .pond-item:hover {
+    background: rgba(14, 165, 233, .08) !important;
+    border-color: rgba(14, 165, 233, .3) !important;
+  }
+
+  html.dark .param-row.p-pass {
+    border-left-color: #059669 !important;
+  }
+
+  html.dark .param-row.p-near {
+    border-left-color: #d97706 !important;
+  }
+
+  html.dark .param-row.p-fail {
+    border-left-color: #dc2626 !important;
+  }
+
+  html.dark .param-row:hover {
+    background: rgba(14, 165, 233, .06) !important;
+  }
+
+  /* ── Table Headers ── */
+  html.dark .data-table th,
+  html.dark .heat-table th,
+  html.dark .col-table th {
+    background: #0a1e32 !important;
+    color: #94a3b8 !important;
+    border-color: rgba(255, 255, 255, .06) !important;
+  }
+
+  /* group header rows */
+  html.dark .data-table tr.group-header td {
+    background: rgba(14, 165, 233, .08) !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .col-table tr.group-header td {
+    background: rgba(14, 165, 233, .08) !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .col-table tr.group-header-muted td {
+    background: rgba(100, 116, 139, .08) !important;
+    color: #94a3b8 !important;
+  }
+
+  html.dark .heat-table .hv-p {
+    color: #34d399 !important;
+  }
+
+  html.dark .heat-table .hv-n {
+    color: #fbbf24 !important;
+  }
+
+  html.dark .heat-table .hv-f {
+    color: #f87171 !important;
+  }
+
+  /* ── KPI top bar colors — keep vibrant ── */
+  html.dark .kpi-fail::after {
+    background: #dc2626 !important;
+  }
+
+  html.dark .kpi-near::after {
+    background: #d97706 !important;
+  }
+
+  html.dark .kpi-pass::after {
+    background: #059669 !important;
+  }
+
+  html.dark .kpi-total::after {
+    background: #0ea5e9 !important;
+  }
+
+  /* ── Status Banner (dark navy bg on dashboard) ── */
+  html.dark .status-banner {
+    background: #071525 !important;
+  }
+
+  html.dark .sb-title {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .sb-meta {
+    color: #64748b !important;
+  }
+
+  /* ── Pagination active ── */
+  html.dark .pag-btn.active {
+    background: #0ea5e9 !important;
+    border-color: #0ea5e9 !important;
+    color: #fff !important;
+  }
+
+  html.dark .pag-info {
+    color: #94a3b8 !important;
+  }
+
+  /* ── Code chips ── */
+  html.dark .code-chip {
+    background: rgba(14, 165, 233, .1) !important;
+    border-color: rgba(14, 165, 233, .2) !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .std-badge {
+    background: rgba(14, 165, 233, .1) !important;
+    border-color: rgba(14, 165, 233, .2) !important;
+    color: #7dd3fc !important;
+  }
+
+  /* ── Pills / Tags ── */
+  html.dark .pill-sm.pill-muted,
+  html.dark .tag.tag-na,
+  html.dark .pond-type-badge,
+  html.dark .sec-badge,
+  html.dark .sec-optional,
+  html.dark .total-badge,
+  html.dark .avg-badge {
+    background: #1a2d42 !important;
+    color: #94a3b8 !important;
+    border-color: rgba(255, 255, 255, .08) !important;
+  }
+
+  html.dark .dtx {
+    background: rgba(14, 165, 233, .12) !important;
+    border-color: rgba(14, 165, 233, .25) !important;
+    color: #7dd3fc !important;
+  }
+
+  html.dark .snap-bar {
+    background: rgba(14, 165, 233, .08) !important;
+    border-color: rgba(14, 165, 233, .2) !important;
+    color: #7dd3fc !important;
+  }
+
+  /* ── Pond card mini-bar track ── */
+  html.dark .pbar-val.ok {
+    color: #34d399 !important;
+  }
+
+  html.dark .pbar-val.nr {
+    color: #fbbf24 !important;
+  }
+
+  html.dark .pbar-val.ov {
+    color: #f87171 !important;
+  }
+
+  html.dark .score-val.score-pass {
+    color: #34d399 !important;
+  }
+
+  html.dark .score-val.score-near {
+    color: #fbbf24 !important;
+  }
+
+  html.dark .score-val.score-fail {
+    color: #f87171 !important;
+  }
+
+  html.dark .cell-num.over {
+    color: #f87171 !important;
+  }
+
+  html.dark .cell-num.near {
+    color: #fbbf24 !important;
+  }
+
+  html.dark .pr-name {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .pr-val {
+    color: #cbd5e1 !important;
+  }
+
+  html.dark .pr-std {
+    color: #64748b !important;
+  }
+
+  /* ── เปรียบเทียบบ่อ table ── */
+  html.dark table {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark table th {
+    background: #0a1e32 !important;
+    color: #94a3b8 !important;
+    border-color: rgba(255, 255, 255, .06) !important;
+  }
+
+  html.dark table td {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark table td .mono,
+  html.dark table td .fw-bold {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark table tr:hover td {
+    background: rgba(255, 255, 255, .04) !important;
+  }
+
+  /* score colors in table */
+  html.dark table td .text-success {
+    color: #34d399 !important;
+  }
+
+  html.dark table td .text-warning {
+    color: #fbbf24 !important;
+  }
+
+  html.dark table td .text-danger {
+    color: #f87171 !important;
+  }
+
+  html.dark table td .text-muted {
+    color: #64748b !important;
+  }
+
+  /* tag pills inside table */
+  html.dark table .tag-pass {
+    background: rgba(5, 150, 105, .2) !important;
+    color: #6ee7b7 !important;
+  }
+
+  html.dark table .tag-near {
+    background: rgba(217, 119, 6, .2) !important;
+    color: #fcd34d !important;
+  }
+
+  html.dark table .tag-fail {
+    background: rgba(220, 38, 38, .2) !important;
+    color: #fca5a5 !important;
+  }
+
+  /* ── สถิติพื้นฐาน (stat-card, stat-box) ── */
+  html.dark .stat-card {
+    background: #1a2d42 !important;
+    border-color: rgba(255, 255, 255, .08) !important;
+  }
+
+  html.dark .stat-title {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .stat-box {
+    background: #0f1e30 !important;
+    border-color: rgba(255, 255, 255, .07) !important;
+  }
+
+  html.dark .stat-lbl {
+    color: #94a3b8 !important;
+  }
+
+  html.dark .stat-val {
+    color: #e2e8f0 !important;
+  }
+
+  html.dark .stat-val.text-success {
+    color: #34d399 !important;
+  }
+
+  html.dark .stat-val.text-warning {
+    color: #fbbf24 !important;
+  }
+
+  html.dark .stat-val.text-danger {
+    color: #f87171 !important;
+  }
+
+  html.dark .stat-val.text-primary {
+    color: #7dd3fc !important;
+  }
+
+  /* ── three-col grid wrapper ── */
+  html.dark .three-col .stat-val {
+    color: #e2e8f0 !important;
+  }
+
+  @media(max-width: 768px) {
+    .wq-nav-links {
+      gap: 0;
+    }
+  }
+</style>
+
+<script>
+  /* ── Dark mode: apply before paint to avoid flash ── */
+  (function () {
+    if (localStorage.getItem('wq-dark') === '1') {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  function wqSyncUI() {
+    const on = document.documentElement.classList.contains('dark');
+    const track = document.getElementById('wqToggleTrack');
+    const label = document.getElementById('wqDarkLabel');
+    const icon = document.getElementById('wqDarkIcon');
+    const iconWrap = document.getElementById('wqDarkIconWrap');
+    if (track) track.classList.toggle('on', on);
+    if (label) label.textContent = on ? 'Light Mode' : 'Dark Mode';
+    if (iconWrap) iconWrap.style.background = on ? 'rgba(14,165,233,.15)' : '';
+    if (iconWrap) iconWrap.style.color = on ? '#38bdf8' : '';
+    if (icon) icon.innerHTML = on
+      ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+      : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  }
+
+  function wqToggleDark() {
+    const on = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('wq-dark', on ? '1' : '0');
+    wqSyncUI();
+  }
+
+  function wqToggleMenu() {
+    const btn = document.getElementById('wqMenuBtn');
+    const dd = document.getElementById('wqDropdown');
+    const open = dd.classList.toggle('open');
+    btn.classList.toggle('open', open);
+  }
+
+  document.addEventListener('click', function (e) {
+    const wrap = document.querySelector('.wq-menu-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+      document.getElementById('wqMenuBtn')?.classList.remove('open');
+      document.getElementById('wqDropdown')?.classList.remove('open');
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', wqSyncUI);
+</script>

@@ -1,0 +1,2640 @@
+<!DOCTYPE html>
+<html lang="th">
+
+{# ════════════════════════════════════════════════════════════════════
+WQI BAND MACROS — Helper functions for displaying 5-band WQI labels
+อ้างอิง: Hallock (2002) Washington State DOE WQI; Brown et al. (1970) NSF-WQI
+════════════════════════════════════════════════════════════════════ #}
+{% macro wqi_band_from_score(score) -%}
+{%- if score is none -%}No Data
+{%- elif score >= 80 -%}Excellent
+{%- elif score >= 60 -%}Good
+{%- elif score >= 40 -%}Fair
+{%- elif score >= 20 -%}Poor
+{%- else -%}Very Poor
+{%- endif -%}
+{%- endmacro %}
+
+{% macro wqi_band_class(band) -%}
+{%- if band == 'Excellent' -%}excellent
+{%- elif band == 'Good' -%}good
+{%- elif band == 'Fair' -%}fair
+{%- elif band == 'Poor' -%}poor
+{%- elif band == 'Very Poor' -%}very-poor
+{%- else -%}none
+{%- endif -%}
+{%- endmacro %}
+
+{% macro wqi_band_label_thai(band) -%}
+{%- if band == 'Excellent' -%}ดีเยี่ยม
+{%- elif band == 'Good' -%}ดี
+{%- elif band == 'Fair' -%}เฝ้าระวัง
+{%- elif band == 'Poor' -%}แย่
+{%- elif band == 'Very Poor' -%}แย่มาก
+{%- else -%}ไม่มีข้อมูล
+{%- endif -%}
+{%- endmacro %}
+
+{% macro wqi_band_icon(band) -%}
+{%- if band == 'Excellent' -%}bi-stars
+{%- elif band == 'Good' -%}bi-check-circle-fill
+{%- elif band == 'Fair' -%}bi-exclamation-triangle-fill
+{%- elif band == 'Poor' -%}bi-x-circle-fill
+{%- elif band == 'Very Poor' -%}bi-exclamation-octagon-fill
+{%- else -%}bi-question-circle
+{%- endif -%}
+{%- endmacro %}
+
+{% macro wqi_pill(score, band=none, size='sm') -%}
+{%- set b = band or wqi_band_from_score(score) -%}
+{%- set cls = wqi_band_class(b) -%}
+<span class="pill-sm pill-{{ cls }}" title="WQI Band: {{ b }} (Score {{ score if score is not none else '–' }})">
+  <i class="bi {{ wqi_band_icon(b) }}"></i> {{ wqi_band_label_thai(b) }}
+</span>
+{%- endmacro %}
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบติดตามคุณภาพน้ำ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #0f2744;
+      --navy2: #1a3a6b;
+      --sky: #0ea5e9;
+      --sky2: #0284c7;
+      --sky-lt: #e0f2fe;
+      --sky-bd: #bae6fd;
+      --pass: #059669;
+      --pass-bg: #d1fae5;
+      --pass-bd: #a7f3d0;
+      --near: #d97706;
+      --near-bg: #fef3c7;
+      --near-bd: #fde68a;
+      --fail: #dc2626;
+      --fail-bg: #fee2e2;
+      --fail-bd: #fca5a5;
+      /* ── WQI 5-band colors (Hallock 2002 + NSF-WQI) ── */
+      --wqi-exc: #059669;
+      /* Excellent 80-100 */
+      --wqi-exc-bg: #d1fae5;
+      --wqi-exc-bd: #a7f3d0;
+      --wqi-good: #10b981;
+      /* Good 60-79 */
+      --wqi-good-bg: #dcfce7;
+      --wqi-good-bd: #86efac;
+      --wqi-fair: #d97706;
+      /* Fair 40-59 */
+      --wqi-fair-bg: #fef3c7;
+      --wqi-fair-bd: #fde68a;
+      --wqi-poor: #ea580c;
+      /* Poor 20-39 */
+      --wqi-poor-bg: #ffedd5;
+      --wqi-poor-bd: #fdba74;
+      --wqi-vp: #dc2626;
+      /* Very Poor 0-19 */
+      --wqi-vp-bg: #fee2e2;
+      --wqi-vp-bd: #fca5a5;
+      --muted: #64748b;
+      --border: rgba(15, 39, 68, .10);
+      --border2: rgba(15, 39, 68, .16);
+      --card: #ffffff;
+      --bg: #f1f5f9;
+      --sb-w: 268px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px;
+      color: var(--navy);
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* APP SHELL */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-body {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sb-w);
+      min-width: var(--sb-w);
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sb-inner {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .sb-inner::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sb-inner::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 4px;
+    }
+
+    .sb-sec {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sb-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--muted);
+      padding: 0 2px;
+    }
+
+    .sb-select {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 9px;
+      border: 1px solid var(--border2);
+      font-size: 13px;
+      font-family: 'Sarabun', sans-serif;
+      font-weight: 500;
+      background: #f8fafc;
+      color: var(--navy);
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+
+    .sb-select:focus {
+      outline: none;
+      border-color: var(--sky);
+    }
+
+    .date-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    .dt {
+      padding: 6px 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'Sarabun', sans-serif;
+      color: var(--muted);
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .dt:hover:not(.active) {
+      border-color: var(--sky);
+      color: var(--sky);
+      background: var(--sky-lt);
+    }
+
+    .dt.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+    }
+
+    .date-panel {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .date-panel.show {
+      display: flex;
+    }
+
+    .date-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .date-input {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 9px;
+      border: 1px solid var(--border2);
+      font-size: 13px;
+      font-family: 'Sarabun', sans-serif;
+      background: #f8fafc;
+      color: var(--navy);
+      transition: border-color .15s;
+    }
+
+    .date-input:focus {
+      outline: none;
+      border-color: var(--sky);
+    }
+
+    .quick-btns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .qbtn {
+      padding: 7px 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'Sarabun', sans-serif;
+      color: var(--navy);
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+    }
+
+    .qbtn:hover,
+    .qbtn.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+    }
+
+    .btn-apply {
+      width: 100%;
+      padding: 9px;
+      border-radius: 9px;
+      background: var(--sky);
+      border: none;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Sarabun', sans-serif;
+      cursor: pointer;
+      transition: background .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-apply:hover {
+      background: var(--sky2);
+    }
+
+    .pond-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .pond-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all .12s;
+      border: 1px solid transparent;
+      text-decoration: none;
+      color: var(--navy);
+    }
+
+    .pond-item:hover {
+      background: var(--sky-lt);
+      border-color: var(--sky-bd);
+    }
+
+    .pond-item.selected {
+      background: var(--sky-lt);
+      border-color: var(--sky);
+    }
+
+    .pond-item .pi-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pond-item .pi-name {
+      flex: 1;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .pond-item .pi-score {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .sb-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2px 0;
+    }
+
+    /* MAIN */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 18px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .main-content::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .main-content::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 4px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .card-title i {
+      color: var(--sky);
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+      font-weight: 400;
+    }
+
+    /* STATUS BANNER */
+    .status-banner {
+      background: var(--navy);
+      border-radius: 14px;
+      padding: 14px 18px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .sb-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .sb-meta {
+      font-size: 11px;
+      color: rgba(255, 255, 255, .6);
+      margin-top: 2px;
+    }
+
+    .sb-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .sb-pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 13px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sp-fail {
+      background: rgba(220, 38, 38, .2);
+      color: #fca5a5;
+      border: 1px solid rgba(220, 38, 38, .3);
+    }
+
+    .sp-near {
+      background: rgba(217, 119, 6, .2);
+      color: #fcd34d;
+      border: 1px solid rgba(217, 119, 6, .3);
+    }
+
+    .sp-pass {
+      background: rgba(5, 150, 105, .2);
+      color: #6ee7b7;
+      border: 1px solid rgba(5, 150, 105, .3);
+    }
+
+    .sp-info {
+      background: rgba(14, 165, 233, .2);
+      color: #7dd3fc;
+      border: 1px solid rgba(14, 165, 233, .3);
+    }
+
+    /* ─── Banner pills for 5 WQI bands (on dark navy bg) ─── */
+    .sp-excellent {
+      background: rgba(5, 150, 105, .25);
+      color: #6ee7b7;
+      border: 1px solid rgba(5, 150, 105, .4);
+    }
+
+    .sp-good {
+      background: rgba(16, 185, 129, .22);
+      color: #86efac;
+      border: 1px solid rgba(16, 185, 129, .35);
+    }
+
+    .sp-fair {
+      background: rgba(217, 119, 6, .22);
+      color: #fcd34d;
+      border: 1px solid rgba(217, 119, 6, .35);
+    }
+
+    .sp-poor {
+      background: rgba(234, 88, 12, .22);
+      color: #fdba74;
+      border: 1px solid rgba(234, 88, 12, .35);
+    }
+
+    .sp-very-poor {
+      background: rgba(220, 38, 38, .25);
+      color: #fca5a5;
+      border: 1px solid rgba(220, 38, 38, .4);
+    }
+
+    /* EXPORT BUTTON INSIDE BANNER */
+    .btn-export-monthly {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 13px;
+      border-radius: 999px;
+      text-decoration: none;
+      cursor: pointer;
+      background: rgba(220, 38, 38, .25);
+      border: 1px solid rgba(220, 38, 38, .45);
+      color: #fca5a5;
+      transition: background .15s;
+      white-space: nowrap;
+      font-family: 'Sarabun', sans-serif;
+    }
+
+    .btn-export-monthly:hover {
+      background: rgba(220, 38, 38, .40);
+      color: #fff;
+    }
+
+    .export-month-pick {
+      background: rgba(14, 165, 233, .15);
+      border: 1px solid rgba(14, 165, 233, .4);
+      color: #7dd3fc;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-family: 'Sarabun', sans-serif;
+      cursor: pointer;
+      width: 128px;
+    }
+
+    .export-month-pick:focus {
+      outline: none;
+    }
+
+    /* KPI */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .kpi {
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .kpi-fail::after {
+      background: var(--fail);
+    }
+
+    .kpi-near::after {
+      background: var(--near);
+    }
+
+    .kpi-pass::after {
+      background: var(--pass);
+    }
+
+    .kpi-total::after {
+      background: var(--sky);
+    }
+
+    .kpi-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .kpi-val {
+      font-size: 30px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1;
+    }
+
+    .kpi-hint {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .c-fail {
+      color: var(--fail);
+    }
+
+    .c-near {
+      color: var(--near);
+    }
+
+    .c-pass {
+      color: var(--pass);
+    }
+
+    .c-navy {
+      color: var(--navy);
+    }
+
+    .kpi-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 28px;
+      opacity: .07;
+    }
+
+    /* COLUMNS */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* POND GRID */
+    .pond-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+      gap: 8px;
+    }
+
+    .pond-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--card);
+      text-decoration: none;
+      color: var(--navy);
+      display: block;
+      transition: all .15s;
+    }
+
+    a.pond-card:hover {
+      border-color: var(--sky);
+      box-shadow: 0 4px 16px rgba(14, 165, 233, .13);
+      transform: translateY(-1px);
+    }
+
+    div.pond-card {
+      cursor: default;
+    }
+
+    .pond-card.pc-pass {
+      border-left: 3px solid var(--pass);
+    }
+
+    .pond-card.pc-near {
+      border-left: 3px solid var(--near);
+    }
+
+    .pond-card.pc-fail {
+      border-left: 3px solid var(--fail);
+    }
+
+    .pond-card.pc-none {
+      border-left: 3px solid #cbd5e1;
+    }
+
+    /* WQI 5-band pond-card left-border */
+    .pond-card.pc-excellent {
+      border-left: 3px solid var(--wqi-exc);
+    }
+
+    .pond-card.pc-good {
+      border-left: 3px solid var(--wqi-good);
+    }
+
+    .pond-card.pc-fair {
+      border-left: 3px solid var(--wqi-fair);
+    }
+
+    .pond-card.pc-poor {
+      border-left: 3px solid var(--wqi-poor);
+    }
+
+    .pond-card.pc-very-poor {
+      border-left: 3px solid var(--wqi-vp);
+    }
+
+    .pc-name {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .pc-score {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .pc-date {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* PILLS */
+    .pill-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .pill-pass {
+      background: var(--pass-bg);
+      color: var(--pass);
+    }
+
+    .pill-near {
+      background: var(--near-bg);
+      color: var(--near);
+    }
+
+    .pill-fail {
+      background: var(--fail-bg);
+      color: var(--fail);
+    }
+
+    .pill-muted {
+      background: #f1f5f9;
+      color: var(--muted);
+    }
+
+    /* ─── WQI 5-band pills (Hallock 2002 + NSF-WQI Brown 1970) ─── */
+    .pill-excellent {
+      background: var(--wqi-exc-bg);
+      color: var(--wqi-exc);
+      border: 1px solid var(--wqi-exc-bd);
+    }
+
+    .pill-good {
+      background: var(--wqi-good-bg);
+      color: #047857;
+      border: 1px solid var(--wqi-good-bd);
+    }
+
+    .pill-fair {
+      background: var(--wqi-fair-bg);
+      color: var(--wqi-fair);
+      border: 1px solid var(--wqi-fair-bd);
+    }
+
+    .pill-poor {
+      background: var(--wqi-poor-bg);
+      color: var(--wqi-poor);
+      border: 1px solid var(--wqi-poor-bd);
+    }
+
+    .pill-very-poor {
+      background: var(--wqi-vp-bg);
+      color: var(--wqi-vp);
+      border: 1px solid var(--wqi-vp-bd);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tag-pass {
+      background: var(--pass-bg);
+      color: var(--pass);
+    }
+
+    .tag-near {
+      background: var(--near-bg);
+      color: var(--near);
+    }
+
+    .tag-fail {
+      background: var(--fail-bg);
+      color: var(--fail);
+    }
+
+    .tag-na {
+      background: #f1f5f9;
+      color: var(--muted);
+    }
+
+    /* ─── WQI 5-band tags ─── */
+    .tag-excellent {
+      background: var(--wqi-exc-bg);
+      color: var(--wqi-exc);
+    }
+
+    .tag-good {
+      background: var(--wqi-good-bg);
+      color: #047857;
+    }
+
+    .tag-fair {
+      background: var(--wqi-fair-bg);
+      color: var(--wqi-fair);
+    }
+
+    .tag-poor {
+      background: var(--wqi-poor-bg);
+      color: var(--wqi-poor);
+    }
+
+    .tag-very-poor {
+      background: var(--wqi-vp-bg);
+      color: var(--wqi-vp);
+    }
+
+    .dtx {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--sky-lt);
+      border: 1px solid var(--sky-bd);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #0369a1;
+      white-space: nowrap;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* SNAPSHOT */
+    .snap-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--sky-lt);
+      border: 1px solid var(--sky-bd);
+      border-radius: 9px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #0369a1;
+      flex-wrap: wrap;
+    }
+
+    .snap-sel {
+      border: 1px solid var(--sky-bd);
+      border-radius: 7px;
+      background: #fff;
+      font-size: 12px;
+      padding: 3px 8px;
+      color: var(--navy);
+      font-family: 'IBM Plex Mono', monospace;
+      cursor: pointer;
+    }
+
+    .snap-sel:focus {
+      outline: none;
+    }
+
+    /* STAGE */
+    .stage-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .stage-node {
+      flex: 1;
+      min-width: 110px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 10px 11px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--navy);
+      display: block;
+      transition: all .15s;
+      cursor: pointer;
+    }
+
+    .stage-node:hover {
+      border-color: var(--sky);
+      color: var(--navy);
+      box-shadow: 0 3px 12px rgba(14, 165, 233, .15);
+      transform: translateY(-1px);
+    }
+
+    .stage-node.sn-active {
+      background: var(--sky-lt);
+      border-color: var(--sky);
+    }
+
+    .sn-type {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .sn-name {
+      font-size: 11px;
+      font-weight: 600;
+      margin: 3px 0;
+      line-height: 1.35;
+    }
+
+    .sn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 6px;
+      text-align: left;
+      font-size: 10px;
+      margin: 6px 0;
+    }
+
+    .sn-k {
+      color: var(--muted);
+    }
+
+    .sn-v {
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .sn-hint {
+      font-size: 10px;
+      color: var(--sky);
+      opacity: 0;
+      transition: opacity .15s;
+      margin-top: 4px;
+    }
+
+    .stage-node:hover .sn-hint {
+      opacity: 1;
+    }
+
+    .stage-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 16px;
+      padding: 0 1px;
+      flex-shrink: 0;
+    }
+
+    /* PARAM ROWS */
+    .param-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .param-row {
+      display: grid;
+      grid-template-columns: 70px 62px 110px 70px 1fr;
+      gap: 6px 10px;
+      align-items: center;
+      padding: 7px 10px;
+      background: #f8fafc;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .param-row:hover {
+      background: var(--sky-lt);
+    }
+
+    .param-row.p-fail {
+      border-left: 3px solid var(--fail);
+    }
+
+    .param-row.p-near {
+      border-left: 3px solid var(--near);
+    }
+
+    .param-row.p-pass {
+      border-left: 3px solid var(--pass);
+    }
+
+    .pr-name {
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .pr-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .pr-std {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .mini-bar {
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .mini-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .bf-pass {
+      background: var(--pass);
+    }
+
+    .bf-near {
+      background: var(--near);
+    }
+
+    .bf-fail {
+      background: var(--fail);
+    }
+
+    .mini-pct {
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      width: 30px;
+      text-align: right;
+    }
+
+    /* RING */
+    .ring-svg {
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: #e2e8f0;
+      stroke-width: 12;
+    }
+
+    .ring-arc {
+      fill: none;
+      stroke-width: 12;
+      stroke-linecap: round;
+      transition: stroke-dashoffset .5s ease;
+    }
+
+    .ring-pass {
+      stroke: var(--pass);
+    }
+
+    .ring-near {
+      stroke: var(--near);
+    }
+
+    .ring-fail {
+      stroke: var(--fail);
+    }
+
+    .ring-none {
+      stroke: #cbd5e1;
+    }
+
+    /* ─── WQI 5-band ring stroke colors ─── */
+    .ring-excellent {
+      stroke: var(--wqi-exc);
+    }
+
+    .ring-good {
+      stroke: #10b981;
+    }
+
+    .ring-fair {
+      stroke: var(--wqi-fair);
+    }
+
+    .ring-poor {
+      stroke: var(--wqi-poor);
+    }
+
+    .ring-very-poor {
+      stroke: var(--wqi-vp);
+    }
+
+    .ring-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+    }
+
+    .ring-rel {
+      position: relative;
+      display: inline-block;
+    }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .ring-lbl {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* REDUCTION */
+    .red-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .red-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .red-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .red-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 3px 0;
+    }
+
+    .rv-g {
+      color: var(--pass);
+    }
+
+    .rv-m {
+      color: var(--near);
+    }
+
+    .rv-b {
+      color: var(--fail);
+    }
+
+    /* HEAT TABLE */
+    .heat-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .heat-table th {
+      background: var(--navy);
+      color: #fff;
+      padding: 7px 9px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .heat-table th:first-child {
+      text-align: left;
+      border-radius: 8px 0 0 0;
+    }
+
+    .heat-table th:last-child {
+      border-radius: 0 8px 0 0;
+    }
+
+    .heat-table td {
+      padding: 6px 9px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .heat-table td:first-child {
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .heat-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .hval {
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+    }
+
+    .hv-p {
+      color: var(--pass);
+    }
+
+    .hv-n {
+      color: var(--near);
+    }
+
+    .hv-f {
+      color: var(--fail);
+    }
+
+    /* STATUS PILL */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .sp2-pass {
+      background: var(--pass-bg);
+      color: var(--pass);
+    }
+
+    .sp2-near {
+      background: var(--near-bg);
+      color: var(--near);
+    }
+
+    .sp2-fail {
+      background: var(--fail-bg);
+      color: var(--fail);
+    }
+
+    .sp2-none {
+      background: #f1f5f9;
+      color: var(--muted);
+    }
+
+    /* ─── WQI 5-band status-pill (big detail view) ─── */
+    .sp2-excellent {
+      background: var(--wqi-exc-bg);
+      color: var(--wqi-exc);
+      border: 2px solid var(--wqi-exc-bd);
+    }
+
+    .sp2-good {
+      background: var(--wqi-good-bg);
+      color: #047857;
+      border: 2px solid var(--wqi-good-bd);
+    }
+
+    .sp2-fair {
+      background: var(--wqi-fair-bg);
+      color: var(--wqi-fair);
+      border: 2px solid var(--wqi-fair-bd);
+    }
+
+    .sp2-poor {
+      background: var(--wqi-poor-bg);
+      color: var(--wqi-poor);
+      border: 2px solid var(--wqi-poor-bd);
+    }
+
+    .sp2-very-poor {
+      background: var(--wqi-vp-bg);
+      color: var(--wqi-vp);
+      border: 2px solid var(--wqi-vp-bd);
+    }
+
+    /* NOTE */
+    .note-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 9px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #78350f;
+      font-weight: 500;
+    }
+
+    /* CHART */
+    .chart-wrap {
+      position: relative;
+      height: 200px;
+    }
+
+    .chart-tabs {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .chart-tab {
+      padding: 5px 12px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'Sarabun', sans-serif;
+      color: var(--muted);
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .chart-tab:hover {
+      border-color: var(--sky);
+      color: var(--sky);
+    }
+
+    .chart-tab.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+    }
+
+    /* STATS */
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 12px;
+    }
+
+    .stat-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 9px;
+    }
+
+    .stat-lbl {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .stat-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    @media(max-width:960px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .two-col,
+      .three-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media(max-width:768px) {
+      :root {
+        --sb-w: 100%;
+      }
+
+      .app-body {
+        flex-direction: column;
+        overflow-y: auto;
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: unset;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .sb-inner {
+        max-height: 320px;
+      }
+
+      body {
+        overflow: auto;
+      }
+
+      .app-shell {
+        height: auto;
+        overflow: auto;
+      }
+    }
+
+    .flex-gap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .text-ms {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: #cbd5e1;
+    }
+
+    .btn-main {
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'Sarabun', sans-serif;
+      text-decoration: none;
+    }
+
+    .btn-main:hover {
+      background: var(--navy2);
+      color: #fff;
+    }
+
+    /* Dark mode: บังคับสีปุ่ม btn-main ให้เห็นชัด
+       (เพราะ --navy ใน dark mode เป็นสีอ่อน) */
+    html.dark .btn-main {
+      background: #1e3a6e !important;
+      color: #fff !important;
+      border: 1px solid rgba(56, 189, 248, .35) !important;
+    }
+
+    html.dark .btn-main:hover {
+      background: #2563eb !important;
+    }
+
+    .btn-sky {
+      background: var(--sky);
+    }
+
+    .btn-sky:hover {
+      background: var(--sky2);
+    }
+
+    /* ═════ Dark mode: บังคับสีพื้นหลังของปุ่ม/แบนเนอร์ที่ใช้ var(--navy) ═════
+       เหตุผล: --navy ใน dark mode = สีอ่อน (#e2e8f0 สำหรับ text)
+       แต่ element เหล่านี้ใช้เป็น background ที่ต้องเข้ม → ต้อง override */
+    html.dark .dt,
+    html.dark .qbtn,
+    html.dark .status-banner,
+    html.dark .heat-table,
+    html.dark .chart-tab,
+    html.dark .avg {
+      background: #1e3a6e !important;
+      color: #fff !important;
+    }
+
+    /* tr inline style — ใช้ attr selector */
+    html.dark tr[style*="var(--navy)"] {
+      background: #1e3a6e !important;
+    }
+
+    /* ─── WQI 5-band: dark mode overrides ─── */
+    html.dark .pill-excellent,
+    html.dark .tag-excellent {
+      background: rgba(5, 150, 105, .20) !important;
+      color: #6ee7b7 !important;
+      border-color: rgba(110, 231, 183, .30) !important;
+    }
+
+    html.dark .pill-good,
+    html.dark .tag-good {
+      background: rgba(16, 185, 129, .18) !important;
+      color: #86efac !important;
+      border-color: rgba(134, 239, 172, .30) !important;
+    }
+
+    html.dark .pill-fair,
+    html.dark .tag-fair {
+      background: rgba(217, 119, 6, .18) !important;
+      color: #fcd34d !important;
+      border-color: rgba(252, 211, 77, .30) !important;
+    }
+
+    html.dark .pill-poor,
+    html.dark .tag-poor {
+      background: rgba(234, 88, 12, .18) !important;
+      color: #fdba74 !important;
+      border-color: rgba(253, 186, 116, .30) !important;
+    }
+
+    html.dark .pill-very-poor,
+    html.dark .tag-very-poor {
+      background: rgba(220, 38, 38, .20) !important;
+      color: #fca5a5 !important;
+      border-color: rgba(252, 165, 165, .30) !important;
+    }
+
+    html.dark .sp2-excellent {
+      background: rgba(5, 150, 105, .20) !important;
+      color: #6ee7b7 !important;
+      border-color: rgba(110, 231, 183, .40) !important;
+    }
+
+    html.dark .sp2-good {
+      background: rgba(16, 185, 129, .18) !important;
+      color: #86efac !important;
+      border-color: rgba(134, 239, 172, .40) !important;
+    }
+
+    html.dark .sp2-fair {
+      background: rgba(217, 119, 6, .18) !important;
+      color: #fcd34d !important;
+      border-color: rgba(252, 211, 77, .40) !important;
+    }
+
+    html.dark .sp2-poor {
+      background: rgba(234, 88, 12, .18) !important;
+      color: #fdba74 !important;
+      border-color: rgba(253, 186, 116, .40) !important;
+    }
+
+    html.dark .sp2-very-poor {
+      background: rgba(220, 38, 38, .20) !important;
+      color: #fca5a5 !important;
+      border-color: rgba(252, 165, 165, .40) !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+
+    {% include "navbar.html" %}
+
+    <div class="app-body">
+
+      <!-- ══════════ SIDEBAR ══════════ -->
+      <aside class="sidebar">
+        <div class="sb-inner">
+
+          <!-- Location -->
+          <div class="sb-sec">
+            <div class="sb-lbl"><i class="bi bi-geo-alt"></i> สถานที่</div>
+            <form method="GET" action="{{ url_for('dashboard') }}" id="locForm">
+              <select class="sb-select" name="location" onchange="document.getElementById('locForm').submit()">
+                {% for loc in location_list %}
+                <option value="{{ loc }}" {% if loc==selected_location %}selected{% endif %}>{{ loc }}</option>
+                {% endfor %}
+              </select>
+              <input type="hidden" name="pond" value="{{ selected_pond }}">
+              <input type="hidden" name="mode" value="{{ date_mode }}">
+            </form>
+          </div>
+
+          <!-- Date Filter -->
+          <div class="sb-sec">
+            <div class="sb-lbl"><i class="bi bi-calendar3"></i> ช่วงเวลา</div>
+            <div class="date-tabs">
+              <button class="dt {% if date_mode=='latest' %}active{% endif %}" onclick="switchTab('single',this)">
+                <i class="bi bi-calendar-day" style="font-size:11px"></i> วันเดียว
+              </button>
+              <button class="dt {% if date_mode=='range' %}active{% endif %}" onclick="switchTab('range',this)">
+                <i class="bi bi-calendar-range" style="font-size:11px"></i> ช่วงเวลา
+              </button>
+              <button class="dt {% if date_mode=='month' %}active{% endif %}" onclick="switchTab('month',this)">
+                <i class="bi bi-calendar3" style="font-size:11px"></i> เดือน
+              </button>
+              <button class="dt {% if date_mode=='recent' %}active{% endif %}" onclick="switchTab('quick',this)">
+                <i class="bi bi-lightning-charge" style="font-size:11px"></i> ล่าสุด
+              </button>
+            </div>
+
+            <form method="GET" action="{{ url_for('dashboard') }}" id="mainFilter" onsubmit="disableInactive()">
+              <input type="hidden" name="location" value="{{ selected_location }}">
+              <input type="hidden" name="pond" value="{{ selected_pond }}">
+
+              <div class="date-panel {% if date_mode=='latest' %}show{% endif %}" id="panel-single">
+                <div class="date-label">เลือกวันที่</div>
+                <input type="date" class="date-input" name="date_from" id="singleDate" value="{{ date_from or '' }}"
+                  onchange="document.getElementById('singleDateTo').value=this.value">
+                <input type="hidden" name="date_to" id="singleDateTo" value="{{ date_from or '' }}">
+              </div>
+              <div class="date-panel {% if date_mode=='range' %}show{% endif %}" id="panel-range">
+                <div class="date-label">วันที่เริ่มต้น</div>
+                <input type="date" class="date-input" name="date_from" value="{{ date_from or '' }}">
+                <div class="date-label">วันที่สิ้นสุด</div>
+                <input type="date" class="date-input" name="date_to" value="{{ date_to or '' }}">
+              </div>
+              <div class="date-panel {% if date_mode=='month' %}show{% endif %}" id="panel-month">
+                <div class="date-label">เลือกเดือน</div>
+                <input type="month" class="date-input" name="month" value="{{ selected_month or '' }}">
+              </div>
+              <div class="date-panel {% if date_mode=='recent' %}show{% endif %}" id="panel-quick">
+                <div class="date-label">ย้อนหลังจากวันนี้</div>
+                <div class="quick-btns">
+                  <button type="button" class="qbtn {% if recent_days==7 %}active{% endif %}" onclick="goRecent(7)">7
+                    วัน</button>
+                  <button type="button" class="qbtn {% if recent_days==15 %}active{% endif %}" onclick="goRecent(15)">15
+                    วัน</button>
+                  <button type="button" class="qbtn {% if recent_days==30 %}active{% endif %}" onclick="goRecent(30)">30
+                    วัน</button>
+                </div>
+              </div>
+
+              <button type="submit" id="applyBtn" name="mode"
+                value="{% if date_mode=='month' %}month{% else %}range{% endif %}" class="btn-apply"
+                style="margin-top:8px">
+                <i class="bi bi-search"></i> แสดงผล
+              </button>
+            </form>
+
+            {% if display_date_text %}
+            <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">
+              {{ display_date_text }}
+              <a href="{{ url_for('dashboard', location=selected_location) }}"
+                style="color:var(--sky);text-decoration:none;margin-left:4px">รีเซ็ต</a>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="sb-divider"></div>
+
+          <!-- Pond List -->
+          <div class="sb-sec">
+            <div class="sb-lbl"><i class="bi bi-layers"></i> บ่อน้ำ ({{ pond_list|length + 1 }} บ่อ)</div>
+            <div class="pond-list">
+              <a href="{{ url_for('dashboard', location=selected_location, date_from=date_from, date_to=date_to, mode='range', pond='ทั้งหมด') }}"
+                class="pond-item {% if selected_pond=='ทั้งหมด' %}selected{% endif %}">
+                <div class="pi-dot" style="background:var(--sky)"></div>
+                <span class="pi-name">ภาพรวมทุกบ่อ</span>
+              </a>
+              {% for pond_data_item in all_ponds_overview if all_ponds_overview is defined %}
+              {# 5-band WQI dot color ─ ใช้ wqi_band ใหม่ #}
+              {% set _band = pond_data_item.wqi_band or wqi_band_from_score(pond_data_item.fuzzy_score) %}
+              {% set dot_color =
+              '#059669' if _band == 'Excellent'
+              else '#10b981' if _band == 'Good'
+              else '#d97706' if _band == 'Fair'
+              else '#ea580c' if _band == 'Poor'
+              else '#dc2626' if _band == 'Very Poor'
+              else '#94a3b8' %}
+              {% set score_color =
+              'var(--wqi-exc)' if _band == 'Excellent'
+              else '#047857' if _band == 'Good'
+              else 'var(--wqi-fair)' if _band == 'Fair'
+              else 'var(--wqi-poor)' if _band == 'Poor'
+              else 'var(--wqi-vp)' if _band == 'Very Poor'
+              else 'var(--muted)' %}
+              <a href="{{ url_for('dashboard', location=selected_location, pond=pond_data_item.pond_name, date_from=date_from, date_to=date_to, mode='range') }}"
+                class="pond-item {% if selected_pond==pond_data_item.pond_name %}selected{% endif %}"
+                title="WQI Band: {{ _band }}">
+                <div class="pi-dot" style="background:{{ dot_color }}"></div>
+                <span class="pi-name" style="font-size:12px">{{ pond_data_item.pond_name }}</span>
+                <span class="pi-score" style="color:{{ score_color }}">{{ pond_data_item.fuzzy_score if
+                  pond_data_item.fuzzy_score is not none else '–' }}</span>
+              </a>
+              {% else %}
+              {% for p in pond_list %}
+              <a href="{{ url_for('dashboard', location=selected_location, pond=p, date_from=date_from, date_to=date_to, mode='range') }}"
+                class="pond-item {% if selected_pond==p %}selected{% endif %}">
+                <div class="pi-dot" style="background:var(--muted)"></div>
+                <span class="pi-name" style="font-size:12px">{{ p }}</span>
+              </a>
+              {% endfor %}
+              {% endfor %}
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- ══════════ MAIN CONTENT ══════════ -->
+      <main class="main-content">
+
+        {% set is_multi_day = (date_from != date_to) %}
+
+        {% if selected_pond == 'ทั้งหมด' %}
+        {# ════════════════ OVERVIEW MODE ════════════════ #}
+
+        <!-- ━━━━━ STATUS BANNER — พร้อมปุ่ม Export Excel รายเดือน ━━━━━ -->
+        <div class="status-banner">
+          <div>
+            <div class="sb-title">
+              <i class="bi bi-geo-alt-fill" style="color:#38bdf8"></i> {{ selected_location }}
+            </div>
+            <div class="sb-meta">{{ date_from }} → {{ date_to }} · {{ overview_stats.total }} บ่อ</div>
+          </div>
+
+          <div class="sb-pills">
+            {# ══════ 5 WQI Band pills — แสดงเฉพาะ band ที่มี ≥1 บ่อ ══════ #}
+            {% if overview_stats.very_poor and overview_stats.very_poor > 0 %}
+            <div class="sb-pill sp-very-poor"><i class="bi bi-exclamation-octagon-fill"></i> แย่มาก {{
+              overview_stats.very_poor }}</div>
+            {% endif %}
+            {% if overview_stats.poor and overview_stats.poor > 0 %}
+            <div class="sb-pill sp-poor"><i class="bi bi-x-circle-fill"></i> แย่ {{ overview_stats.poor }}</div>
+            {% endif %}
+            {% if overview_stats.fair and overview_stats.fair > 0 %}
+            <div class="sb-pill sp-fair"><i class="bi bi-exclamation-triangle-fill"></i> เฝ้าระวัง {{
+              overview_stats.fair }}</div>
+            {% endif %}
+            {% if overview_stats.good and overview_stats.good > 0 %}
+            <div class="sb-pill sp-good"><i class="bi bi-check-circle-fill"></i> ดี {{ overview_stats.good }}</div>
+            {% endif %}
+            {% if overview_stats.excellent and overview_stats.excellent > 0 %}
+            <div class="sb-pill sp-excellent"><i class="bi bi-stars"></i> ดีเยี่ยม {{ overview_stats.excellent }}</div>
+            {% endif %}
+            <div class="sb-pill sp-info"><i class="bi bi-layers-fill"></i> {{ overview_stats.total }} บ่อ</div>
+
+            <!-- ═══════════════════════════════════════════
+                 ปุ่ม Export Excel รายเดือน (ทำงานได้จริง)
+                 เลือกเดือนด้วย input[type=month] แล้วกด Export
+            ═══════════════════════════════════════════ -->
+            <a href="{{ url_for('export_monthly_report', location=selected_location, month=selected_month) }}"
+              class="btn-export-monthly" download>
+              <i class="bi bi-file-earmark-excel-fill"></i> Export Excel รายเดือน
+            </a>
+            <!-- ════════════════════════════════════════ -->
+          </div>
+        </div>
+
+        {# ══════════════════════════════════════════════════════════════
+        WQI LEGEND CARD — อธิบายระดับ WQI 5 สถานะ
+        อ้างอิง: Hallock (2002) Washington State Ecology WQI;
+        Brown et al. (1970) NSF-WQI 5-tier classification
+        ══════════════════════════════════════════════════════════════ #}
+        <div class="card" style="padding:12px 16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:8px">
+              <i class="bi bi-info-circle" style="color:var(--sky);font-size:14px"></i>
+              <span style="font-size:12px;font-weight:600;color:var(--navy)">เกณฑ์การประเมิน WQI 5 ระดับ</span>
+              <span style="font-size:10px;color:var(--muted);font-style:italic">— Hallock (2002), Brown et al.
+                (1970)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+              <span class="pill-sm pill-excellent" title="80-100"><i class="bi bi-stars"></i> ดีเยี่ยม <span
+                  class="mono" style="font-size:10px;opacity:.85">80-100</span></span>
+              <span class="pill-sm pill-good" title="60-79"><i class="bi bi-check-circle-fill"></i> ดี <span
+                  class="mono" style="font-size:10px;opacity:.85">60-79</span></span>
+              <span class="pill-sm pill-fair" title="40-59"><i class="bi bi-exclamation-triangle-fill"></i> เฝ้าระวัง
+                <span class="mono" style="font-size:10px;opacity:.85">40-59</span></span>
+              <span class="pill-sm pill-poor" title="20-39"><i class="bi bi-x-circle-fill"></i> แย่ <span class="mono"
+                  style="font-size:10px;opacity:.85">20-39</span></span>
+              <span class="pill-sm pill-very-poor" title="0-19"><i class="bi bi-exclamation-octagon-fill"></i> แย่มาก
+                <span class="mono" style="font-size:10px;opacity:.85">0-19</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI Grid -->
+        {% set fp = namespace(item=none) %}
+        {% for p in all_ponds_overview %}
+        {% if fp.item is none and ('หลังบำบัด' in p.pond_name or 'Treated' in p.pond_name) %}{% set fp.item = p %}{%
+        endif %}
+        {% endfor %}
+
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px">
+          {% if fp.item %}
+          {% set fp_score = fp.item.fuzzy_score %}
+          {% set fp_band = fp.item.wqi_band or wqi_band_from_score(fp_score) %}
+          {# สี 5 ระดับ WQI #}
+          {% set fp_color =
+          '#059669' if fp_band == 'Excellent'
+          else '#10b981' if fp_band == 'Good'
+          else '#d97706' if fp_band == 'Fair'
+          else '#ea580c' if fp_band == 'Poor'
+          else '#dc2626' if fp_band == 'Very Poor'
+          else '#94a3b8' %}
+          {% set fp_cls = wqi_band_class(fp_band) %}
+          <div class="kpi"
+            style="display:flex;align-items:center;gap:16px;padding:16px 18px;border-top:3px solid {{ fp_color }}">
+            <div style="position:relative;flex-shrink:0">
+              <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg)">
+                <circle cx="36" cy="36" r="28" fill="none" stroke="#e2e8f0" stroke-width="8" />
+                <circle cx="36" cy="36" r="28" fill="none" stroke="{{ fp_color }}" stroke-width="8"
+                  stroke-linecap="round" stroke-dasharray="176"
+                  stroke-dashoffset="{{ (176-(fp_score/100*176)) if fp_score is not none else 176 }}" />
+              </svg>
+              <div
+                style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;
+                  color:{{ fp_color }}">
+                  {{ fp_score if fp_score is not none else '–' }}
+                </span>
+              </div>
+            </div>
+            <div>
+              <div class="kpi-lbl" style="font-size:11px">🔵 น้ำออก (สิ่งสำคัญที่สุด)</div>
+              <div style="font-size:14px;font-weight:600;margin:2px 0;line-height:1.3">{{ fp.item.pond_name }}</div>
+              <div>
+                <span class="pill-sm pill-{{ fp_cls }}">
+                  <i class="bi {{ wqi_band_icon(fp_band) }}"></i> {{ wqi_band_label_thai(fp_band) }}
+                </span>
+              </div>
+              {% if fp.item.critical_params %}
+              <div style="font-size:11px;color:var(--fail);margin-top:4px">
+                <i class="bi bi-exclamation-circle"></i> ค่าเกิน: {{ fp.item.critical_params[:3]|join(', ') }}
+              </div>
+              {% elif fp.item.warning_params %}
+              <div style="font-size:11px;color:var(--near);margin-top:4px">
+                <i class="bi bi-exclamation-triangle"></i> ระวัง: {{ fp.item.warning_params[:3]|join(', ') }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% else %}
+          <div class="kpi kpi-total" style="padding:16px 18px">
+            <div class="kpi-lbl">น้ำออก (หลังบำบัด)</div>
+            <div class="kpi-val c-navy">–</div>
+            <div class="kpi-hint">ไม่พบข้อมูลบ่อสุดท้าย</div>
+          </div>
+          {% endif %}
+
+          <div
+            class="kpi {% if reduction and reduction.BOD is not none and reduction.BOD>=80 %}kpi-pass{% elif reduction and reduction.BOD is not none and reduction.BOD>=60 %}kpi-near{% elif reduction and reduction.BOD is not none %}kpi-fail{% else %}kpi-total{% endif %}">
+            <div class="kpi-lbl">BOD ลดลง</div>
+            <div
+              class="kpi-val {% if reduction and reduction.BOD is not none and reduction.BOD>=80 %}c-pass{% elif reduction and reduction.BOD is not none and reduction.BOD>=60 %}c-near{% elif reduction and reduction.BOD is not none %}c-fail{% else %}c-navy{% endif %}">
+              {{ reduction.BOD if reduction and reduction.BOD is not none else '–' }}{% if reduction and reduction.BOD
+              is not none %}<span style="font-size:.6em">%</span>{% endif %}
+            </div>
+            <div class="kpi-hint">ประสิทธิภาพบำบัด</div>
+            <i class="bi bi-graph-down-arrow kpi-icon"></i>
+          </div>
+
+          <div
+            class="kpi {% if reduction and reduction.COD is not none and reduction.COD>=80 %}kpi-pass{% elif reduction and reduction.COD is not none and reduction.COD>=60 %}kpi-near{% elif reduction and reduction.COD is not none %}kpi-fail{% else %}kpi-total{% endif %}">
+            <div class="kpi-lbl">COD ลดลง</div>
+            <div
+              class="kpi-val {% if reduction and reduction.COD is not none and reduction.COD>=80 %}c-pass{% elif reduction and reduction.COD is not none and reduction.COD>=60 %}c-near{% elif reduction and reduction.COD is not none %}c-fail{% else %}c-navy{% endif %}">
+              {{ reduction.COD if reduction and reduction.COD is not none else '–' }}{% if reduction and reduction.COD
+              is not none %}<span style="font-size:.6em">%</span>{% endif %}
+            </div>
+            <div class="kpi-hint">ประสิทธิภาพบำบัด</div>
+            <i class="bi bi-graph-down-arrow kpi-icon"></i>
+          </div>
+
+          <div class="kpi kpi-total">
+            <div class="kpi-lbl">บ่อในระบบ</div>
+            <div class="kpi-val c-navy">{{ overview_stats.total }}</div>
+            <div class="kpi-hint" style="line-height:1.5;font-size:10.5px">
+              {% if overview_stats.excellent and overview_stats.excellent > 0 %}<span style="color:var(--wqi-exc)"
+                title="ดีเยี่ยม">{{ overview_stats.excellent }}★</span> {% endif %}
+              {% if overview_stats.good and overview_stats.good > 0 %}<span style="color:#047857" title="ดี">{{
+                overview_stats.good }}✓</span> {% endif %}
+              {% if overview_stats.fair and overview_stats.fair > 0 %}<span style="color:var(--wqi-fair)"
+                title="เฝ้าระวัง">{{ overview_stats.fair }}⚠</span> {% endif %}
+              {% if overview_stats.poor and overview_stats.poor > 0 %}<span style="color:var(--wqi-poor)" title="แย่">{{
+                overview_stats.poor }}✗</span> {% endif %}
+              {% if overview_stats.very_poor and overview_stats.very_poor > 0 %}<span style="color:var(--wqi-vp)"
+                title="แย่มาก">{{ overview_stats.very_poor }}⛔</span>{% endif %}
+            </div>
+            <i class="bi bi-layers-fill kpi-icon"></i>
+          </div>
+        </div>
+
+        <!-- Pond Cards -->
+        {% if all_ponds_overview %}
+        <div class="card">
+          <div class="card-title">
+            <i class="bi bi-grid-3x3-gap"></i> บ่อน้ำทั้งหมด
+            <span class="card-subtitle">{{ date_from }} → {{ date_to }}</span>
+          </div>
+          <div class="pond-grid">
+            {% for pond in all_ponds_overview %}
+            {# 5-band WQI styling #}
+            {% set p_band = pond.wqi_band or wqi_band_from_score(pond.fuzzy_score) %}
+            {% set p_cls = wqi_band_class(p_band) %}
+            {% set pc = 'pc-' + p_cls %}
+            {% set score_color =
+            'var(--wqi-exc)' if p_band == 'Excellent'
+            else '#047857' if p_band == 'Good'
+            else 'var(--wqi-fair)' if p_band == 'Fair'
+            else 'var(--wqi-poor)' if p_band == 'Poor'
+            else 'var(--wqi-vp)' if p_band == 'Very Poor'
+            else 'var(--muted)' %}
+
+            {% if is_multi_day %}
+            <div class="pond-card {{ pc }}">
+              {% else %}
+              <a href="{{ url_for('dashboard', location=selected_location, pond=pond.pond_name, date_from=date_from, date_to=date_to, mode='range') }}"
+                class="pond-card {{ pc }}" title="WQI Band: {{ p_band }}">
+                {% endif %}
+                <div class="pc-name">{{ pond.pond_name }}</div>
+                <div class="pc-score" style="color:{{ score_color }}">
+                  {{ pond.fuzzy_score if pond.fuzzy_score is not none else '–' }}<span
+                    style="font-size:.75rem">/100</span>
+                </div>
+                <div class="pc-date"><i class="bi bi-clock" style="font-size:.65rem"></i>
+                  {{ pond.sample_date.strftime('%d/%m/%Y %H:%M') if pond.sample_date else '–' }}
+                </div>
+                <div style="margin-top:5px">
+                  {% if pond.fuzzy_score is none %}
+                  <span class="pill-sm pill-muted">No Data</span>
+                  {% else %}
+                  <span class="pill-sm pill-{{ p_cls }}">
+                    <i class="bi {{ wqi_band_icon(p_band) }}"></i> {{ wqi_band_label_thai(p_band) }}
+                  </span>
+                  {% endif %}
+                </div>
+                {% if pond.critical_params %}
+                <div class="flex-gap" style="gap:3px;margin-top:4px">
+                  {% for p in pond.critical_params[:3] %}<span class="pill-sm pill-fail" style="font-size:10px">{{ p
+                    }}</span>{% endfor %}
+                </div>
+                {% elif pond.warning_params %}
+                <div class="flex-gap" style="gap:3px;margin-top:4px">
+                  {% for p in pond.warning_params[:3] %}<span class="pill-sm pill-near" style="font-size:10px">{{ p
+                    }}</span>{% endfor %}
+                </div>
+                {% endif %}
+                {% if is_multi_day %}
+            </div>{% else %}</a>{% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Stage Compare -->
+        {% if stage_compare is defined and stage_compare %}
+        <div style="display:grid;grid-template-columns:{% if reduction %}3fr 2fr{% else %}1fr{% endif %};gap:12px">
+          <div class="card">
+            <div class="card-title">
+              <i class="bi bi-diagram-3"></i> เปรียบเทียบขั้นตอนบำบัด
+              <span class="card-subtitle">{{ match_date_text or date_from }}</span>
+            </div>
+            {% if is_multi_day and available_dates %}
+            <div class="snap-bar">
+              <i class="bi bi-calendar-day"></i>
+              <span style="font-weight:600">ดูวันที่:</span>
+              <select id="snapshotSel" class="snap-sel" onchange="switchStageDay(this.value)">
+                {% for d in available_dates %}
+                <option value="{{ d }}" {% if d==snapshot_date %}selected{% endif %}>{{ d | replace('-','/') }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% endif %}
+            {% if is_multi_day %}<div id="stage-flow-container"></div>
+            {% else %}
+            <div class="stage-flow">
+              {% for r in stage_compare %}
+              <a href="{{ url_for('dashboard', location=selected_location, pond=r.pond_name, date_from=date_from, date_to=date_to, mode='range') }}"
+                class="stage-node {% if 'หลังบำบัด' in r.stage %}sn-active{% endif %}">
+                <div class="sn-type">{{ r.sample_type }}</div>
+                <div class="sn-name">{{ r.pond_name }}</div>
+                <div class="sn-grid">
+                  <span class="sn-k">BOD</span><span class="sn-v">{{ r.BOD if r.BOD is not none else '–' }}</span>
+                  <span class="sn-k">COD</span><span class="sn-v">{{ r.COD if r.COD is not none else '–' }}</span>
+                  <span class="sn-k">TSS</span><span class="sn-v">{{ r.TSS if r.TSS is not none else '–' }}</span>
+                  <span class="sn-k">FCB</span><span class="sn-v">{{ r.FCB if r.FCB is not none else '–' }}</span>
+                </div>
+                {% if r.score is not none %}
+                <div class="tag {% if r.score>=80 %}tag-pass{% elif r.score>=60 %}tag-near{% else %}tag-fail{% endif %}"
+                  style="margin-top:5px">
+                  <i class="bi bi-stars"></i> {{ r.score }}
+                </div>{% endif %}
+                <div class="sn-hint"><i class="bi bi-box-arrow-in-right"></i> ดูรายละเอียด</div>
+              </a>
+              {% if not loop.last %}<div class="stage-arrow"><i class="bi bi-arrow-right-short"></i></div>{% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          {% if reduction %}
+          <div class="card">
+            <div class="card-title">
+              <i class="bi bi-graph-down-arrow"></i> ประสิทธิภาพบำบัด
+              <span id="reduction-date-badge" class="card-subtitle">{{ match_date_text or snapshot_date or date_from
+                }}</span>
+            </div>
+            <div id="reduction-grid" class="red-grid" style="grid-template-columns:repeat(2,1fr);gap:6px">
+              {% for lbl, val in
+              [('BOD',reduction.BOD),('COD',reduction.COD),('TSS',reduction.TSS),('FCB',reduction.FCB),('TCB',reduction.TCB)]
+              %}
+              <div class="red-box">
+                <div class="red-lbl">{{ lbl }} ลดลง</div>
+                {% if val is not none %}
+                <div class="red-val {% if val>=80 %}rv-g{% elif val>=60 %}rv-m{% else %}rv-b{% endif %}">{{ val }}%
+                </div>
+                <span class="tag {% if val>=80 %}tag-pass{% elif val>=60 %}tag-near{% else %}tag-fail{% endif %}"
+                  style="font-size:10px">
+                  {% if val>=80 %}ดี{% elif val>=60 %}ปานกลาง{% else %}ต่ำ{% endif %}
+                </span>
+                {% else %}<div class="red-val" style="color:var(--muted)">–</div>{% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Heatmap -->
+        {% if heatmap_rows is defined and heatmap_rows %}
+        <div class="card">
+          <div class="card-title"><i class="bi bi-table"></i> แผนที่ความเสี่ยง <span class="card-subtitle">{{ date_from
+              }} → {{ date_to }}</span></div>
+          <div class="table-responsive">
+            <table class="heat-table">
+              <thead>
+                <tr>
+                  <th>บ่อน้ำ</th>
+                  <th>pH</th>
+                  <th>BOD</th>
+                  <th>COD</th>
+                  <th>TSS</th>
+                  <th>TDS</th>
+                  <th>FCB</th>
+                  <th>TCB</th>
+                  <th>เฉลี่ย</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in heatmap_rows %}
+                <tr>
+                  <td>{{ r.name }}</td>
+                  {% for v in [r.ph,r.bod,r.cod,r.tss,r.tds,r.fcb,r.tcb] %}
+                  <td>{% if v is not none %}<span
+                      class="hval {% if v>=80 %}hv-p{% elif v>=60 %}hv-n{% else %}hv-f{% endif %}">{{ v }}%</span>{%
+                    else %}<span style="color:var(--muted)">–</span>{% endif %}</td>
+                  {% endfor %}
+                  <td>{% if r.avg is not none %}<span
+                      class="pill-sm {% if r.avg>=80 %}pill-pass{% elif r.avg>=60 %}pill-near{% else %}pill-fail{% endif %}">{{
+                      r.avg }}%</span>{% else %}–{% endif %}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if critical_events is defined and critical_events %}
+        <div class="card">
+          <div class="card-title">
+            <i class="bi bi-exclamation-octagon"></i> เหตุการณ์วิกฤต
+            <span class="card-subtitle">30 วันล่าสุด</span>
+          </div>
+          <div class="table-responsive">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--navy);color:#fff">
+                  <th style="padding:6px 10px;white-space:nowrap">วันที่</th>
+                  <th style="padding:6px 10px">บ่อ</th>
+                  <th style="padding:6px 10px">พารามิเตอร์ที่เกิน</th>
+                  <th style="padding:6px 10px;text-align:center">สถานะ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ev in critical_events %}
+                {% set ev_url = url_for('dashboard',
+                location=selected_location,
+                pond=ev.pond_url,
+                date_from=ev.date_for_url,
+                date_to=ev.date_for_url,
+                mode='range') %}
+                <tr style="border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s"
+                  onclick="window.location.href='{{ ev_url }}'" onmouseover="this.style.background='var(--sky-lt)'"
+                  onmouseout="this.style.background=''">
+
+                  <td style="padding:6px 10px;white-space:nowrap">
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600">
+                      {{ ev.date[:10] }}
+                    </div>
+                    <div style="font-size:10px;color:var(--muted)">{{ ev.date[11:] }}</div>
+                    <div style="font-size:10px;color:var(--sky);margin-top:2px">
+                      <i class="bi bi-box-arrow-in-right"></i> คลิกดูข้อมูล
+                    </div>
+                  </td>
+
+                  <td style="padding:6px 10px;font-weight:600;font-size:12px">{{ ev.pond }}</td>
+
+                  <td style="padding:6px 10px">
+                    <div style="display:flex;flex-wrap:wrap;gap:4px">
+                      {% for p in ev.params %}
+                      <span class="tag {% if p.status=='Fail' %}tag-fail{% else %}tag-near{% endif %}">
+                        {% if p.status=='Fail' %}🔴{% else %}🟡{% endif %} {{ p.param }}
+                      </span>
+                      {% endfor %}
+                    </div>
+                  </td>
+
+                  <td style="padding:6px 10px;text-align:center">
+                    {% if ev.has_fail %}
+                    <span class="pill-sm pill-fail"><i class="bi bi-x-circle-fill"></i> Fail</span>
+                    {% else %}
+                    <span class="pill-sm pill-near"><i class="bi bi-exclamation-triangle-fill"></i> Near</span>
+                    {% endif %}
+                  </td>
+
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+        <!-- Pond Compare -->
+        {% if pond_compare is defined and pond_compare %}
+        <div class="card">
+          <div class="card-title"><i class="bi bi-bar-chart-line"></i> เปรียบเทียบบ่อ <span
+              class="card-subtitle">ค่าเฉลี่ย</span></div>
+          <div class="table-responsive">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--navy);color:#fff">
+                  <th style="padding:6px 8px">บ่อ</th>
+                  <th style="padding:6px 8px">BOD</th>
+                  <th style="padding:6px 8px">COD</th>
+                  <th style="padding:6px 8px">TSS</th>
+                  <th style="padding:6px 8px">pH</th>
+                  <th style="padding:6px 8px">Score</th>
+                  <th style="padding:6px 8px">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in pond_compare %}
+                {% set r_band = wqi_band_from_score(r.score) %}
+                {% set r_cls = wqi_band_class(r_band) %}
+                {% set r_score_color =
+                'var(--wqi-exc)' if r_band == 'Excellent'
+                else '#047857' if r_band == 'Good'
+                else 'var(--wqi-fair)' if r_band == 'Fair'
+                else 'var(--wqi-poor)' if r_band == 'Poor'
+                else 'var(--wqi-vp)' if r_band == 'Very Poor'
+                else 'var(--muted)' %}
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:5px 8px;font-weight:600">{{ r.name }}</td>
+                  {% for val in [r.bod,r.cod,r.tss,r.ph] %}<td
+                    style="padding:5px 8px;font-family:'IBM Plex Mono',monospace">{{ val if val is not none else '–' }}
+                  </td>{% endfor %}
+                  <td style="padding:5px 8px">
+                    <span class="mono fw-bold" style="color:{{ r_score_color }}">
+                      {{ r.score if r.score is not none else '–' }}
+                    </span>
+                  </td>
+                  <td style="padding:5px 8px">
+                    {% if r.score is none %}
+                    <span class="tag tag-na">No Data</span>
+                    {% else %}
+                    <span class="tag tag-{{ r_cls }}">
+                      <i class="bi {{ wqi_band_icon(r_band) }}"></i> {{ wqi_band_label_thai(r_band) }}
+                    </span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        {# ════════════════ DETAIL MODE ════════════════ #}
+
+        <!-- Back bar -->
+        <div class="card" style="padding:12px 16px">
+          <div class="flex-gap" style="justify-content:space-between;flex-wrap:wrap">
+            <div>
+              <div style="font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px">
+                <i class="bi bi-droplet-half" style="color:var(--sky)"></i> {{ selected_pond }}
+              </div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">{{ display_date_text }} · {{ after_count or
+                0 }} รายการ</div>
+            </div>
+            <div class="flex-gap">
+              <form method="GET" action="{{ url_for('dashboard') }}" style="display:inline">
+                <input type="hidden" name="location" value="{{ selected_location }}">
+                <input type="hidden" name="date_from" value="{{ date_from }}">
+                <input type="hidden" name="date_to" value="{{ date_to }}">
+                <input type="hidden" name="mode" value="range">
+                <select class="sb-select" name="pond" style="width:auto;padding:6px 10px" onchange="this.form.submit()">
+                  <option value="ทั้งหมด">— ภาพรวมทุกบ่อ —</option>
+                  {% for p in pond_list %}<option value="{{ p }}" {% if p==selected_pond %}selected{% endif %}>{{ p }}
+                  </option>{% endfor %}
+                </select>
+              </form>
+              <a href="{{ url_for('dashboard', location=selected_location, pond='ทั้งหมด', date_from=date_from, date_to=date_to, mode='range', snapshot_date=snapshot_date) }}"
+                class="btn-main" style="font-size:12px;padding:6px 13px">
+                <i class="bi bi-arrow-left"></i> ภาพรวม
+              </a>
+              {% if after_data and after_data.evaluation %}
+              <a href="{{ url_for('export_result_pdf', result_id=after_data.evaluation.id) }}" style="display:inline-flex;align-items:center;gap:5px;padding:6px 13px;
+                        border-radius:9px;background:#dc2626;color:#fff;text-decoration:none;
+                        font-size:12px;font-weight:600;font-family:'Sarabun',sans-serif;"
+                title="Export Excel ผลประเมินวันนี้" download>
+                <i class="bi bi-file-earmark-excel-fill"></i> Export Excel
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {% if after_data %}
+        {# ── 5-band WQI for detail view ── #}
+        {% set d_band = overall_wqi_band or wqi_band_from_score(score_value) %}
+        {% set d_cls = wqi_band_class(d_band) %}
+        {% set d_color =
+        'var(--wqi-exc)' if d_band == 'Excellent'
+        else '#047857' if d_band == 'Good'
+        else 'var(--wqi-fair)' if d_band == 'Fair'
+        else 'var(--wqi-poor)' if d_band == 'Poor'
+        else 'var(--wqi-vp)' if d_band == 'Very Poor'
+        else 'var(--muted)' %}
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:12px">
+          <!-- Fuzzy Score -->
+          <div class="card" style="padding:14px 16px">
+            <div class="card-title"><i class="bi bi-stars"></i> Fuzzy Score</div>
+            <div class="ring-wrap">
+              {% set s = score_value | default(0) %}
+              {% set circ = 326 %}
+              {% set offset = (circ-(s/100*circ)) if score_value is not none else circ %}
+              <div class="ring-rel">
+                <svg class="ring-svg" width="110" height="110" viewBox="0 0 140 140">
+                  <circle class="ring-bg" cx="70" cy="70" r="52" />
+                  <circle
+                    class="ring-arc {% if score_value is not none %}ring-{{ d_cls }}{% else %}ring-none{% endif %}"
+                    cx="70" cy="70" r="52" stroke-dasharray="{{ circ }}" stroke-dashoffset="{{ offset }}" />
+                </svg>
+                <div class="ring-center">
+                  <div class="ring-num" style="color:{{ d_color if score_value is not none else 'var(--muted)' }}">
+                    {{ score_value if score_value is not none else '–' }}
+                  </div>
+                  <div class="ring-lbl">/ 100</div>
+                </div>
+              </div>
+              <div>
+                {% if score_value is none %}
+                <span class="status-pill sp2-none">ไม่มีข้อมูล</span>
+                {% else %}
+                <span class="status-pill sp2-{{ d_cls }}" title="WQI Band: {{ d_band }} (Score {{ score_value }})">
+                  <i class="bi {{ wqi_band_icon(d_band) }}"></i> {{ wqi_band_label_thai(d_band) }}
+                </span>
+                {% endif %}
+              </div>
+              {# คำอธิบายสั้นของระดับ #}
+              {% if score_value is not none %}
+              <div style="font-size:10px;color:var(--muted);text-align:center">
+                {% if d_band == 'Excellent' %}WQI 80-100 · ดีเยี่ยม ผ่านด้วยดี
+                {% elif d_band == 'Good' %}WQI 60-79 · ดี ผ่านมาตรฐาน ควรติดตาม
+                {% elif d_band == 'Fair' %}WQI 40-59 · เฝ้าระวัง ใกล้เกิน
+                {% elif d_band == 'Poor' %}WQI 20-39 · แย่ ต้องแก้ไข
+                {% elif d_band == 'Very Poor' %}WQI 0-19 · แย่มาก เร่งด่วน
+                {% endif %}
+              </div>
+              {% endif %}
+              {% if overall_message %}
+              <div style="font-size:12px;color:var(--muted);text-align:center;line-height:1.5;padding:0 8px">{{
+                overall_message }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Param Rows -->
+          <div class="card">
+            <div class="card-title"><i class="bi bi-shield-check"></i> ผลรายพารามิเตอร์</div>
+            {% if compliance_counts is defined %}
+            {% set tp = compliance_counts.pass + compliance_counts.near + compliance_counts.fail + compliance_counts.na
+            %}
+            {% set cr = (compliance_counts.pass/tp*100)|round(1) if tp>0 else 0 %}
+            <div class="flex-gap" style="margin-bottom:6px">
+              <span class="tag tag-pass">ผ่าน: {{ compliance_counts.pass }}</span>
+              <span class="tag tag-near">ระวัง: {{ compliance_counts.near }}</span>
+              <span class="tag tag-fail">เกิน: {{ compliance_counts.fail }}</span>
+              <span style="margin-left:auto;font-size:11px;font-weight:600">อัตราผ่าน {{ cr }}%</span>
+            </div>
+            <div style="height:5px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:10px">
+              <div style="height:100%;width:{{ cr }}%;background:var(--pass);border-radius:999px"></div>
+            </div>
+            {% endif %}
+            {% if param_rows is defined and param_rows %}
+            <div class="param-grid">
+              {% for r in param_rows %}
+              {% set pc = '' %}{% if r.status=='Fail' %}{% set pc='p-fail' %}{% elif r.status=='Near Limit' %}{% set
+              pc='p-near' %}{% elif r.status=='Pass' %}{% set pc='p-pass' %}{% endif %}
+              <div class="param-row {{ pc }}">
+                <div class="pr-name">{{ r.label }}</div>
+                <div class="pr-val">{{ r.value if r.value is not none else '–' }}</div>
+                <div class="pr-std">มาตรฐาน: {{ r.standard }}</div>
+                <div>
+                  {% if r.status=='Pass' %}<span class="tag tag-pass" style="font-size:10px">🟢 ผ่าน</span>
+                  {% elif r.status=='Near Limit' %}<span class="tag tag-near" style="font-size:10px">🟡 ระวัง</span>
+                  {% elif r.status=='Fail' %}<span class="tag tag-fail" style="font-size:10px">🔴 เกิน</span>
+                  {% elif r.status=='ไม่กำหนด' %}<span class="tag tag-na"
+                    style="font-size:10px;background:#e2e8f0;color:#64748b">⊝ ไม่กำหนด</span>
+                  {% else %}<span class="tag tag-na" style="font-size:10px">N/A</span>{% endif %}
+                </div>
+                <div style="display:flex;align-items:center;gap:5px">
+                  {% set rp_raw = r.risk_percent %}
+                  {% set is_unreg = (r.status == 'ไม่กำหนด') or (rp_raw is none) %}
+                  {% set rp = 0 if is_unreg else rp_raw %}
+                  {% if is_unreg %}
+                  <span class="mini-pct" style="color:#94a3b8;font-style:italic;font-size:11px">—</span>
+                  {% else %}
+                  <div class="mini-bar" style="flex:1">
+                    <div class="mini-fill {% if rp<30 %}bf-pass{% elif rp<60 %}bf-near{% else %}bf-fail{% endif %}"
+                      style="width:{{ [rp,100]|min }}%"></div>
+                  </div>
+                  <span
+                    class="mini-pct {% if rp<30 %}text-success{% elif rp<60 %}text-warning{% else %}text-danger{% endif %}">{{
+                    rp }}%</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% else %}
+        <div class="card empty-state">
+          <i class="bi bi-inbox"></i>
+          <h5 style="margin-top:12px;color:var(--muted)">ไม่พบข้อมูลในช่วงที่เลือก</h5>
+          <div class="flex-gap" style="justify-content:center;margin-top:12px">
+            <a href="{{ url_for('dashboard', location=selected_location, pond='ทั้งหมด') }}" class="btn-main"><i
+                class="bi bi-list-ul"></i> กลับภาพรวม</a>
+            <a href="{{ url_for('upload_data') }}" class="btn-main btn-sky"><i class="bi bi-upload"></i>
+              อัปโหลดข้อมูล</a>
+          </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- Trend Charts -->
+        {% if trend_labels is defined and trend_labels|length >= 2 %}
+        <div class="card">
+          <div class="card-title"><i class="bi bi-graph-up"></i> แนวโน้มค่าพารามิเตอร์ <span class="card-subtitle">7
+              วันล่าสุด</span></div>
+          <div class="chart-tabs">
+            {% for t in ['BOD','COD','TSS','pH','Coliform'] %}
+            <button type="button" onclick="showChart('{{ t }}')" id="ctab-{{ t }}"
+              class="chart-tab {% if loop.first %}active{% endif %}">{{ t }}</button>
+            {% endfor %}
+          </div>
+          {% for t in ['BOD','COD','TSS','pH','Coliform'] %}
+          <div id="chart-{{ t }}" class="chart-wrap" {% if not loop.first %}style="display:none" {% endif %}>
+            <canvas id="canvas-{{ t }}"></canvas>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Stats -->
+        {% if bod_mean is defined or cod_mean is defined or tss_mean is defined %}
+        <div class="card">
+          <div class="card-title"><i class="bi bi-calculator"></i> สถิติพื้นฐาน <span class="card-subtitle">{{ date_from
+              }} → {{ date_to }}</span></div>
+          <div class="three-col">
+            {% for name, mean, mx, mn, std_v in [('BOD (mg/L)',bod_mean,bod_max,bod_min,20),('COD
+            (mg/L)',cod_mean,cod_max,cod_min,50),('TSS (mg/L)',tss_mean,tss_max,tss_min,30)] %}
+            <div class="stat-card">
+              <div class="stat-title">{{ name }}</div>
+              <div class="stat-grid">
+                {% for lbl, val, cls in
+                [('เฉลี่ย',mean,''),('สูงสุด',mx,'text-danger'),('ต่ำสุด',mn,'text-success'),('มาตรฐาน',std_v,'text-primary')]
+                %}
+                <div class="stat-box">
+                  <div class="stat-lbl">{{ lbl }}</div>
+                  <div class="stat-val {{ cls }}">{{ val if val is not none else '–' }}</div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script>
+    // ── Export Month Picker ──────────────────────────────
+    (function () {
+      var picker = document.getElementById('expMonthPick');
+      var btn = document.getElementById('expMonthBtn');
+      if (!picker || !btn) return;
+      picker.addEventListener('change', function () {
+        var loc = encodeURIComponent('{{ selected_location }}');
+        btn.href = '/export/monthly-report?location=' + loc + '&month=' + this.value;
+      });
+    })();
+
+    // ── Date Tab Switcher ────────────────────────────────
+    function switchTab(id, btn) {
+      document.querySelectorAll('.dt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.date-panel').forEach(p => p.classList.remove('show'));
+      var panel = document.getElementById('panel-' + id);
+      if (panel) panel.classList.add('show');
+      var applyBtn = document.getElementById('applyBtn');
+      if (applyBtn) applyBtn.value = id === 'month' ? 'month' : 'range';
+    }
+
+    function disableInactive() {
+      ['single', 'range', 'month', 'quick'].forEach(function (id) {
+        var p = document.getElementById('panel-' + id);
+        if (!p || !p.classList.contains('show')) {
+          if (p) p.querySelectorAll('input,select').forEach(function (el) { el.disabled = true; });
+        }
+      });
+    }
+
+    function goRecent(days) {
+      var to = new Date(), from = new Date();
+      from.setDate(from.getDate() - days);
+      var fmt = function (d) { return d.toISOString().split('T')[0]; };
+      var loc = encodeURIComponent('{{ selected_location }}');
+      var pond = encodeURIComponent('{{ selected_pond }}');
+      window.location.href = '/dashboard?location=' + loc + '&pond=' + pond + '&date_from=' + fmt(from) + '&date_to=' + fmt(to) + '&mode=range';
+    }
+
+    // ── Chart Tabs ───────────────────────────────────────
+    function showChart(name) {
+      ['BOD', 'COD', 'TSS', 'pH', 'Coliform'].forEach(function (t) {
+        var el = document.getElementById('chart-' + t);
+        if (el) el.style.display = t === name ? 'block' : 'none';
+        var btn = document.getElementById('ctab-' + t);
+        if (btn) btn.classList.toggle('active', t === name);
+      });
+    }
+
+    // ── Stage Day Switch ────────────────────────────────
+    var ALL_STAGE_DATA = {{ all_stage_data | default ({}) | tojson }};
+    var _loc = '{{ selected_location | urlencode }}';
+    var _from = '{{ date_from }}';
+    var _to = '{{ date_to }}';
+    var _snap = '{{ snapshot_date or "" }}';
+
+    function fmt(v) { return (v !== null && v !== undefined) ? v : '–'; }
+    function scoreClass(s) { return !s ? 'tag-na' : s >= 80 ? 'tag-pass' : s >= 60 ? 'tag-near' : 'tag-fail'; }
+    function redClass(v) { return !v ? 'rv-b' : v >= 80 ? 'rv-g' : v >= 60 ? 'rv-m' : 'rv-b'; }
+    function tagClass(v) { return !v ? 'tag-fail' : v >= 80 ? 'tag-pass' : v >= 60 ? 'tag-near' : 'tag-fail'; }
+    function tagLbl(v) { return !v ? 'ต่ำ' : v >= 80 ? 'ดี' : v >= 60 ? 'ปานกลาง' : 'ต่ำ'; }
+
+    function renderStageFlow(dateVal) {
+      var container = document.getElementById('stage-flow-container');
+      var redGrid = document.getElementById('reduction-grid');
+      var redBadge = document.getElementById('reduction-date-badge');
+      if (!container) return;
+      var data = ALL_STAGE_DATA[dateVal];
+      if (!data || !data.stages || !data.stages.length) {
+        container.innerHTML = '<div class="note-box"><i class="bi bi-inbox me-1"></i>ไม่มีข้อมูลสำหรับวันที่ ' + dateVal.replace(/-/g, '/') + '</div>';
+        return;
+      }
+      var html = '<div class="stage-flow">';
+      data.stages.forEach(function (r, i) {
+        var isFinal = r.stage.indexOf('หลังบำบัด') >= 0;
+        var url = '/dashboard?location=' + _loc + '&pond=' + encodeURIComponent(r.pond_name) + '&date_from=' + _from + '&date_to=' + _to + '&mode=range&snapshot_date=' + dateVal;
+        html += '<a href="' + url + '" class="stage-node' + (isFinal ? ' sn-active' : '') + '">' +
+          '<div class="sn-type">' + r.sample_type + '</div>' +
+          '<div class="sn-name">' + r.pond_name + '</div>' +
+          '<div class="sn-grid"><span class="sn-k">BOD</span><span class="sn-v">' + fmt(r.BOD) + '</span><span class="sn-k">COD</span><span class="sn-v">' + fmt(r.COD) + '</span><span class="sn-k">TSS</span><span class="sn-v">' + fmt(r.TSS) + '</span><span class="sn-k">FCB</span><span class="sn-v">' + fmt(r.FCB) + '</span></div>' +
+          (r.score !== null && r.score !== undefined ? '<div class="tag ' + scoreClass(r.score) + '" style="margin-top:5px"><i class="bi bi-stars"></i> ' + r.score + '</div>' : '') +
+          '</a>';
+        if (i < data.stages.length - 1) html += '<div class="stage-arrow"><i class="bi bi-arrow-right-short"></i></div>';
+      });
+      html += '</div>';
+      container.innerHTML = html;
+      if (redGrid) {
+        var red = data.reduction || {};
+        var params = [['BOD', red.BOD], ['COD', red.COD], ['TSS', red.TSS], ['FCB', red.FCB], ['TCB', red.TCB]];
+        redGrid.innerHTML = params.map(function (item) {
+          var lbl = item[0], val = item[1];
+          return '<div class="red-box"><div class="red-lbl">' + lbl + ' ลดลง</div>' +
+            (val !== null && val !== undefined ? '<div class="red-val ' + redClass(val) + '">' + val + '%</div><span class="tag ' + tagClass(val) + '" style="font-size:10px">' + tagLbl(val) + '</span>' : '<div class="red-val" style="color:var(--muted)">–</div>') +
+            '</div>';
+        }).join('');
+      }
+      if (redBadge) redBadge.textContent = dateVal.replace(/-/g, '/');
+    }
+
+    function switchStageDay(dateVal) { renderStageFlow(dateVal); }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var sel = document.getElementById('snapshotSel');
+      if (sel && _snap) renderStageFlow(_snap);
+    });
+
+    // ── Trend Charts ─────────────────────────────────────
+    {% if trend_labels is defined and trend_labels | length >= 2 %}
+    var TL = {{ trend_labels | tojson }};
+    var TBOD = {{ trend_bod | tojson }};
+    var TCOD = {{ trend_cod | tojson }};
+    var TTSS = {{ trend_tss | tojson }};
+    var TPH = {{ trend_ph  | tojson }};
+    var TCOL = {{ (trend_coliform | default ([])) | tojson }};
+
+    var baseOpts = {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 12, font: { family: 'Sarabun', size: 12 } } } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 11 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    };
+
+    function mkLine(id, label, data, std, color) {
+      var ctx = document.getElementById('canvas-' + id);
+      if (!ctx) return;
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: TL, datasets: [
+            { label: label, data: data, borderColor: color, backgroundColor: color + '20', fill: true, tension: 0.4, pointRadius: 3, borderWidth: 2, spanGaps: true },
+            { label: 'มาตรฐาน', data: TL.map(function () { return std; }), borderColor: '#ef4444', borderDash: [4, 4], pointRadius: 0, fill: false, borderWidth: 1.5 }
+          ]
+        },
+        options: baseOpts
+      });
+    }
+
+    mkLine('BOD', 'BOD (mg/L)', TBOD, 20, '#0ea5e9');
+    mkLine('COD', 'COD (mg/L)', TCOD, 50, '#8b5cf6');
+    mkLine('TSS', 'TSS (mg/L)', TTSS, 30, '#f59e0b');
+    mkLine('Coliform', 'FCB (MPN/100mL)', TCOL, 100, '#ef4444');
+
+    var phCtx = document.getElementById('canvas-pH');
+    if (phCtx) {
+      new Chart(phCtx, {
+        type: 'line',
+        data: {
+          labels: TL, datasets: [
+            { label: 'pH', data: TPH, borderColor: '#10b981', backgroundColor: '#10b98120', fill: true, tension: 0.4, pointRadius: 3, borderWidth: 2 },
+            { label: 'ขอบบน (8.5)', data: TL.map(function () { return 8.5; }), borderColor: '#ef4444', borderDash: [4, 4], pointRadius: 0, fill: false, borderWidth: 1.5 },
+            { label: 'ขอบล่าง (6.5)', data: TL.map(function () { return 6.5; }), borderColor: '#f59e0b', borderDash: [4, 4], pointRadius: 0, fill: false, borderWidth: 1.5 }
+          ]
+        },
+        options: baseOpts
+      });
+    }
+    {% endif %}
+  </script>
+</body>
+
+</html>

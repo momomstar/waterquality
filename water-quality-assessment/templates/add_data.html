@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>บันทึกข้อมูล - Water Quality</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --navy: #0f2744;
+            --navy2: #1a3a6b;
+            --sky: #0ea5e9;
+            --sky2: #0284c7;
+            --sky-lt: #e0f2fe;
+            --sky-bd: #bae6fd;
+            --pass: #059669;
+            --pass-bg: #d1fae5;
+            --near: #d97706;
+            --near-bg: #fef3c7;
+            --fail: #dc2626;
+            --fail-bg: #fee2e2;
+            --muted: #64748b;
+            --border: rgba(15, 39, 68, .10);
+            --border2: rgba(15, 39, 68, .16);
+            --card: #ffffff;
+            --bg: #f1f5f9;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 14px;
+            color: var(--navy);
+            background: var(--bg);
+        }
+
+        /* PAGE */
+        .page-wrap {
+            width: 100%;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+        }
+
+        /* HEADER */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .ph-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ph-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
+            background: var(--navy);
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .ph-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--navy);
+            margin: 0;
+        }
+
+        .ph-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 9px;
+            border: 1px solid var(--border2);
+            background: var(--card);
+            color: var(--navy);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all .15s;
+        }
+
+        .btn-back:hover {
+            background: var(--navy);
+            color: #fff;
+            border-color: var(--navy);
+        }
+
+        /* ALERT */
+        .alert-wrap {
+            margin-bottom: 14px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            border: 1px solid;
+            margin-bottom: 6px;
+            position: relative;
+        }
+
+        .alert-success {
+            background: var(--pass-bg);
+            border-color: #a7f3d0;
+            color: #064e3b;
+        }
+
+        .alert-error,
+        .alert-danger {
+            background: var(--fail-bg);
+            border-color: #fca5a5;
+            color: #7f1d1d;
+        }
+
+        .alert-info {
+            background: var(--sky-lt);
+            border-color: var(--sky-bd);
+            color: #0c4a6e;
+        }
+
+        .alert-close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: .6;
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 20px 22px;
+            margin-bottom: 12px;
+        }
+
+        /* SECTION HEADER */
+        .sec-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sec-head i {
+            color: var(--sky);
+            font-size: 15px;
+        }
+
+        .sec-optional {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--muted);
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+
+        /* FORM ELEMENTS */
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-label.req::after {
+            content: " *";
+            color: var(--fail);
+        }
+
+        .form-control,
+        .form-select {
+            width: 100%;
+            padding: 8px 11px;
+            border-radius: 9px;
+            border: 1px solid var(--border2);
+            font-size: 13px;
+            font-family: 'Sarabun', sans-serif;
+            background: #f8fafc;
+            color: var(--navy);
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--sky);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, .12);
+            background: #fff;
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--fail);
+        }
+
+        .form-hint {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .form-hint i {
+            color: var(--sky);
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        /* FIELD GROUP */
+        .field {
+            margin-bottom: 0;
+        }
+
+        .field-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .field-grid.col-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .field-grid.col-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .field-grid.col-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media(max-width:640px) {
+
+            .field-grid.col-3,
+            .field-grid.col-2,
+            .field-grid.col-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .type-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:640px) {
+            [style*="grid-template-columns:1fr 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            [style*="grid-template-columns: 1fr 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* STD BADGE */
+        .std-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 999px;
+            margin-left: 6px;
+            background: var(--sky-lt);
+            color: #0369a1;
+            border: 1px solid var(--sky-bd);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* INFO BOX */
+        .info-box {
+            background: var(--sky-lt);
+            border: 1px solid var(--sky-bd);
+            border-radius: 9px;
+            padding: 10px 13px;
+            font-size: 12px;
+            color: #0369a1;
+            display: flex;
+            align-items: flex-start;
+            gap: 7px;
+            margin-top: 12px;
+        }
+
+        /* SAMPLE TYPE RADIO */
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .type-opt {
+            position: relative;
+        }
+
+        .type-opt input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .type-lbl {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 12px 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border2);
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all .15s;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-lbl i {
+            font-size: 20px;
+            color: var(--muted);
+        }
+
+        .type-lbl span.sub {
+            font-size: 10px;
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        .type-opt input:checked+.type-lbl {
+            border-color: var(--sky);
+            background: var(--sky-lt);
+            color: var(--navy);
+        }
+
+        .type-opt input:checked+.type-lbl i {
+            color: var(--sky);
+        }
+
+        .type-lbl:hover {
+            border-color: var(--sky);
+            background: var(--sky-lt);
+        }
+
+        /* STICKY ACTION BAR */
+        .action-bar {
+            position: sticky;
+            bottom: 0;
+            z-index: 20;
+            background: rgba(241, 245, 249, .92);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid var(--border);
+            padding: 12px 0;
+            margin-top: 4px;
+        }
+
+        .action-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-reset {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border-radius: 9px;
+            border: 1px solid var(--border2);
+            background: var(--card);
+            color: var(--navy);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            transition: all .15s;
+        }
+
+        .btn-reset:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 22px;
+            border-radius: 9px;
+            border: none;
+            background: var(--sky);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            transition: all .15s;
+        }
+
+        .btn-submit:hover {
+            background: var(--sky2);
+        }
+
+        /* PROGRESS DOTS */
+        .form-progress {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .fp-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border2);
+            transition: background .2s;
+        }
+
+        .fp-dot.active {
+            background: var(--sky);
+        }
+
+        .fp-dot.done {
+            background: var(--pass);
+        }
+
+        .fp-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border2);
+        }
+
+        .fp-lbl {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        /* ═════ Combo Box (Location/Pond) ═════ */
+        .combo-wrap {
+            position: relative;
+        }
+        .combo-input {
+            padding-right: 40px !important; /* room for ▼ button */
+        }
+        .combo-btn {
+            position: absolute;
+            right: 4px; top: 50%;
+            transform: translateY(-50%);
+            width: 32px; height: 32px;
+            border: none; background: transparent;
+            color: #0ea5e9;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background .15s;
+            z-index: 3;
+        }
+        .combo-btn:hover {
+            background: rgba(14,165,233,.12);
+        }
+        .combo-btn i {
+            font-size: 16px;
+            transition: transform .15s;
+        }
+        .combo-wrap.open .combo-btn i {
+            transform: rotate(180deg);
+        }
+        .combo-list {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0; right: 0;
+            background: #fff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.12);
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 20;
+            display: none;
+        }
+        .combo-wrap.open .combo-list {
+            display: block;
+        }
+        .combo-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1e293b;
+            border-bottom: 1px solid rgba(0,0,0,.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .combo-item:last-child {
+            border-bottom: none;
+        }
+        .combo-item:hover,
+        .combo-item.active {
+            background: rgba(14,165,233,.12);
+            color: #0c4a6e;
+        }
+        .combo-item.combo-empty {
+            color: #94a3b8;
+            font-style: italic;
+            cursor: default;
+        }
+        .combo-item.combo-empty:hover {
+            background: none;
+            color: #94a3b8;
+        }
+        .combo-item .combo-icon {
+            color: #0ea5e9;
+            flex-shrink: 0;
+        }
+        .combo-section-title {
+            padding: 6px 14px;
+            background: rgba(14,165,233,.08);
+            color: #0c4a6e;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid rgba(14,165,233,.15);
+        }
+
+        /* Dark mode for combo */
+        html.dark .combo-list {
+            background: #1a2d42;
+            border-color: rgba(56,189,248,.30);
+            box-shadow: 0 8px 24px rgba(0,0,0,.5);
+        }
+        html.dark .combo-item {
+            color: #e2e8f0;
+            border-bottom-color: rgba(255,255,255,.06);
+        }
+        html.dark .combo-item:hover,
+        html.dark .combo-item.active {
+            background: rgba(56,189,248,.18);
+            color: #fff;
+        }
+        html.dark .combo-item.combo-empty {
+            color: #64748b;
+        }
+        html.dark .combo-section-title {
+            background: rgba(56,189,248,.10);
+            color: #93c5fd;
+            border-bottom-color: rgba(56,189,248,.25);
+        }
+        html.dark .combo-btn {
+            color: #38bdf8;
+        }
+        html.dark .combo-btn:hover {
+            background: rgba(56,189,248,.18);
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include "navbar.html" %}
+
+    <div style="width:100%;display:flex;justify-content:center;">
+        <div class="page-wrap">
+
+            <!-- Header -->
+            <div class="page-header">
+                <div class="ph-left">
+                    <div class="ph-icon"><i class="bi bi-clipboard-plus"></i></div>
+                    <div>
+                        <div class="ph-title">บันทึกข้อมูลคุณภาพน้ำ</div>
+                        <div class="ph-sub">กรอกค่าพารามิเตอร์ที่ตรวจวัดได้ · ระบบจะประเมิน Fuzzy Score อัตโนมัติ</div>
+                    </div>
+                </div>
+                <a href="{{ url_for('dashboard') }}" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> กลับ Dashboard
+                </a>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="alert-wrap">
+                {% for category, message in messages %}
+                <div class="alert-item alert-{{ 'error' if category == 'error' else category }}">
+                    <i
+                        class="bi bi-{% if category == 'success' %}check-circle-fill{% elif category == 'error' or category == 'danger' %}exclamation-circle-fill{% else %}info-circle-fill{% endif %}"></i>
+                    <div>{{ message }}</div>
+                    <button class="alert-close" onclick="this.closest('.alert-item').remove()">×</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('add_data') }}" id="dataForm">
+
+                <!-- ═══════ SECTION 1: ข้อมูลทั่วไป ═══════ -->
+                <div class="card">
+                    <div class="sec-head">
+                        <i class="bi bi-info-circle"></i> ข้อมูลทั่วไป
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                        <div class="field">
+                            <label class="form-label req">วันที่และเวลา</label>
+                            <input type="datetime-local" class="form-control" name="sample_date" id="sampleDate"
+                                required>
+                            <div class="form-hint"><i class="bi bi-clock"></i> ระบบตั้งค่าเวลาปัจจุบันให้อัตโนมัติ</div>
+                        </div>
+                        <div class="field">
+                            <label class="form-label req">สถานที่</label>
+                            <div class="combo-wrap">
+                                <input type="text" class="form-control combo-input" name="sample_location" id="sampleLocation"
+                                    autocomplete="off" placeholder="พิมพ์ใหม่ หรือคลิก ▼ เพื่อเลือกจากรายการ" required>
+                                <button type="button" class="combo-btn" data-target="sampleLocation"
+                                        title="เลือกจากรายการที่เคยใช้">
+                                    <i class="bi bi-chevron-down"></i>
+                                </button>
+                                <div class="combo-list" id="locations-list-ui" role="listbox"></div>
+                            </div>
+                            <div class="form-hint"><i class="bi bi-info-circle"></i>
+                                <strong>คลิกปุ่ม ▼</strong> เพื่อเลือกจากสถานที่ที่เคยใช้ — หรือพิมพ์ชื่อใหม่ได้เลย</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1.2fr 1fr 1.4fr;gap:12px">
+                        <div class="field">
+                            <label class="form-label req">ชื่อบ่อ / ระบบบำบัด</label>
+                            <div class="combo-wrap">
+                                <input type="text" class="form-control combo-input" name="pond_name" id="pondName"
+                                    autocomplete="off" placeholder="พิมพ์ใหม่ หรือคลิก ▼ เพื่อเลือก" required>
+                                <button type="button" class="combo-btn" data-target="pondName"
+                                        title="เลือกจากบ่อที่เคยใช้">
+                                    <i class="bi bi-chevron-down"></i>
+                                </button>
+                                <div class="combo-list" id="ponds-list-ui" role="listbox"></div>
+                            </div>
+                            <div class="form-hint"><i class="bi bi-info-circle"></i>
+                                คลิก ▼ จะแสดงเฉพาะบ่อของสถานที่นี้</div>
+                        </div>
+                        <div class="field">
+                            <label class="form-label req">ประเภทอาคาร</label>
+                            <select class="form-control" name="building_type" id="building_type" required
+                                    style="font-size:14px">
+                                {% for bt in (building_types or ['ก','ข','ค','ง']) %}
+                                <option value="{{ bt }}" {% if bt == (default_building_type or 'ก') %}selected{% endif %}>
+                                    อาคารประเภท {{ bt }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-hint" style="margin-top:6px;line-height:1.5">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>ประกาศกระทรวงทรัพยากรธรรมชาติฯ พ.ศ. 2567</strong><br>
+                                <span style="font-size:11px;color:var(--muted)">
+                                    <strong>ก:</strong> รพ. ≥ 30 เตียง (เข้มงวดสุด) ·
+                                    <strong>ข:</strong> รพ. 10–29 เตียง ·
+                                    <strong>ค:</strong> รพ. < 10 เตียง / สถานพยาบาลขนาดเล็ก ·
+                                    <strong>ง:</strong> ทั่วไปขนาดเล็กที่สุด
+                                </span>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="form-label req">ประเภทตัวอย่าง</label>
+                            <div class="type-grid" style="margin-top:2px">
+                                <div class="type-opt">
+                                    <input type="radio" name="sample_type" id="t1" value="ก่อนบำบัด">
+                                    <label class="type-lbl" for="t1">
+                                        <i class="bi bi-arrow-down-circle"></i>
+                                        ก่อนบำบัด
+                                        <span class="sub">น้ำเข้า</span>
+                                    </label>
+                                </div>
+                                <div class="type-opt">
+                                    <input type="radio" name="sample_type" id="t2" value="กำลังบำบัด">
+                                    <label class="type-lbl" for="t2">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                        กำลังบำบัด
+                                        <span class="sub">ขั้นกลาง</span>
+                                    </label>
+                                </div>
+                                <div class="type-opt">
+                                    <input type="radio" name="sample_type" id="t3" value="หลังบำบัด" checked>
+                                    <label class="type-lbl" for="t3">
+                                        <i class="bi bi-check-circle"></i>
+                                        หลังบำบัด
+                                        <span class="sub">น้ำออก ⭐</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-hint" style="margin-top:6px"><i class="bi bi-stars"></i> Fuzzy Score
+                                คำนวณหลักสำหรับ "หลังบำบัด"</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════ SECTION 2: พารามิเตอร์หลัก ═══════ -->
+                <div class="card">
+                    <div class="sec-head">
+                        <i class="bi bi-bar-chart"></i> พารามิเตอร์หลัก
+                        <span
+                            style="font-size:11px;color:var(--muted);font-weight:400;margin-left:4px">ต้องกรอกทุกช่อง</span>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+
+                        <div class="field">
+                            <label class="form-label req">pH</label>
+                            <input type="number" min="0" max="14" step="0.01" class="form-control" name="pH"
+                                placeholder="7.0" required>
+                            <div class="form-hint"><i class="bi bi-droplet"></i> ความเป็นกรด-ด่าง</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label req">BOD</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="BOD" placeholder="mg/L"
+                                required>
+                            <div class="form-hint"><i class="bi bi-activity"></i> Biochemical Oxygen Demand</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label req">COD</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="COD" placeholder="mg/L"
+                                required>
+                            <div class="form-hint"><i class="bi bi-speedometer2"></i> Chemical Oxygen Demand</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label req">TSS</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="TSS" placeholder="mg/L"
+                                required>
+                            <div class="form-hint"><i class="bi bi-stack"></i> Total Suspended Solids</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label req">TDS</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="TDS" placeholder="mg/L"
+                                required>
+                            <div class="form-hint"><i class="bi bi-water"></i> Total Dissolved Solids</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label req">น้ำมันและไขมัน</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="oil_grease"
+                                placeholder="mg/L" required>
+                            <div class="form-hint"><i class="bi bi-droplet-fill"></i> Oil &amp; Grease</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ═══════ SECTION 3: พารามิเตอร์เพิ่มเติม ═══════ -->
+                <div class="card">
+                    <div class="sec-head">
+                        <i class="bi bi-list-check"></i> พารามิเตอร์เพิ่มเติม
+                        <span
+                            style="font-size:11px;color:var(--muted);font-weight:400;margin-left:4px">ต้องกรอกทุกช่อง</span>
+                    </div>
+
+                    <!-- แถว 1: TKN, Sulfide, คลอรีน -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                        <div class="field">
+                            <label class="form-label req">TKN</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="TKN" placeholder="mg/L"
+                                required>
+                            <div class="form-hint"><i class="bi bi-bezier2"></i> Total Kjeldahl Nitrogen</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label req">Sulfide</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="sulfide"
+                                placeholder="mg/L" required>
+                            <div class="form-hint"><i class="bi bi-exclamation-triangle"></i> ซัลไฟด์</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label req">คลอรีน (Cl₂)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="chlorine"
+                                placeholder="mg/L" required>
+                            <div class="form-hint"><i class="bi bi-shield"></i> Residual Chlorine</div>
+                        </div>
+
+                    </div>
+
+                    <!-- แถว 2: TCB, FCB (2 คอลัมน์ มีช่องว่างอธิบาย) -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+
+                        <div class="field">
+                            <label class="form-label req">TCB</label>
+                            <input type="number" min="0" step="1" class="form-control" name="TCB"
+                                placeholder="MPN/100mL" required>
+                            <div class="form-hint"><i class="bi bi-bug"></i> Total Coliform Bacteria</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="form-label req">FCB</label>
+                            <input type="number" min="0" step="1" class="form-control" name="FCB"
+                                placeholder="MPN/100mL" required>
+                            <div class="form-hint"><i class="bi bi-bug-fill"></i> Fecal Coliform Bacteria</div>
+                        </div>
+
+                        <div
+                            style="background:var(--sky-lt);border:1px solid var(--sky-bd);border-radius:9px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px">
+                            <div style="font-size:11px;font-weight:600;color:#0369a1"><i class="bi bi-info-circle"></i>
+                                Coliform</div>
+                            <div style="font-size:11px;color:#0369a1;line-height:1.5">TCB = แบคทีเรียรวม<br>FCB =
+                                จากอุจจาระ<br>ค่าสูง → ปนเปื้อน</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ═══════ SECTION 4: เสริม (ไม่บังคับ) ═══════ -->
+                <div class="card">
+                    <div class="sec-head">
+                        <i class="bi bi-plus-circle"></i> พารามิเตอร์เสริม
+                        <span class="sec-optional">ไม่บังคับ</span>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                        <div class="field">
+                            <label class="form-label">Ammonium – NH₄ (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="ammonium"
+                                placeholder="ถ้ามีการตรวจ">
+                            <div class="form-hint"><i class="bi bi-plus-circle"></i>
+                                แนะนำใส่ถ้ามีผลตรวจเพื่อวิเคราะห์เพิ่ม</div>
+                        </div>
+                        <div class="field">
+                            <label class="form-label">Dissolved Oxygen – DO (mg/L)</label>
+                            <input type="number" min="0" step="0.01" class="form-control" name="dissolved_oxygen"
+                                placeholder="สำหรับระบบเติมอากาศ">
+                            <div class="form-hint"><i class="bi bi-wind"></i> สำคัญสำหรับระบบ Aeration</div>
+                        </div>
+                        <div
+                            style="background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px">
+                            <div style="font-size:11px;font-weight:600;color:var(--muted)"><i class="bi bi-lightbulb"
+                                    style="color:var(--sky)"></i> ไม่บังคับ</div>
+                            <div style="font-size:11px;color:var(--muted);line-height:1.6">
+                                พารามิเตอร์เหล่านี้ช่วยวิเคราะห์ระบบได้ละเอียดขึ้น ถ้ามีผลตรวจก็ใส่ได้เลย</div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <i class="bi bi-lightbulb-fill" style="flex-shrink:0;margin-top:1px"></i>
+                        <div>
+                            <strong>Tip:</strong> กรอกเลขทศนิยมได้ เช่น <code
+                                style="font-family:'IBM Plex Mono',monospace;font-size:11px">12.50</code> ·
+                            ค่าที่มีเครื่องหมาย <span style="color:var(--fail);font-weight:700">*</span>
+                            จำเป็นต้องกรอกก่อนบันทึก
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div><!-- /outer-wrap -->
+
+    <!-- Sticky Action Bar (outside form to avoid sticky-in-overflow issues, submits form via JS) -->
+    <div class="action-bar">
+        <div class="action-inner">
+            <button type="button" class="btn-reset" onclick="document.getElementById('dataForm').reset();setNow()">
+                <i class="bi bi-arrow-counterclockwise"></i> ล้างข้อมูล
+            </button>
+            <button type="button" class="btn-submit" onclick="submitForm()">
+                <i class="bi bi-save"></i> บันทึกข้อมูล
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function setNow() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const el = document.getElementById('sampleDate');
+            if (el) el.value = now.toISOString().slice(0, 16);
+        }
+
+        function submitForm() {
+            const form = document.getElementById('dataForm');
+            const loc = form.querySelector('input[name="sample_location"]').value.trim();
+            if (!loc) {
+                form.querySelector('input[name="sample_location"]').classList.add('is-invalid');
+                form.querySelector('input[name="sample_location"]').focus();
+                return;
+            }
+            form.submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            setNow();
+
+            // ══════════════════════════════════════════════════════
+            // COMBO BOX (สถานที่ + ชื่อบ่อ)
+            // ══════════════════════════════════════════════════════
+            let pondsByLocation = {};
+            let allLocations = [];
+
+            const locInput  = document.getElementById('sampleLocation');
+            const pondInput = document.getElementById('pondName');
+            const locUI     = document.getElementById('locations-list-ui');
+            const pondUI    = document.getElementById('ponds-list-ui');
+
+            // คืน list ของบ่อที่ควรแสดง (filter ตาม location ที่เลือกอยู่)
+            function getPondsForCurrentLoc() {
+                const loc = (locInput?.value || '').trim();
+                if (loc && pondsByLocation[loc]) {
+                    return { items: pondsByLocation[loc], scoped: true, locName: loc };
+                }
+                // ถ้ายังไม่ระบุสถานที่ → แสดงทุกบ่อ
+                const all = new Set();
+                Object.values(pondsByLocation).forEach(arr => arr.forEach(p => all.add(p)));
+                return { items: [...all].sort(), scoped: false, locName: null };
+            }
+
+            // render รายการลงใน combo-list
+            function renderCombo(listEl, items, currentVal, opts = {}) {
+                listEl.innerHTML = '';
+                const q = (currentVal || '').trim().toLowerCase();
+                const filtered = q
+                    ? items.filter(x => x.toLowerCase().includes(q))
+                    : items;
+
+                if (opts.sectionTitle) {
+                    const t = document.createElement('div');
+                    t.className = 'combo-section-title';
+                    t.textContent = opts.sectionTitle;
+                    listEl.appendChild(t);
+                }
+
+                if (filtered.length === 0) {
+                    const it = document.createElement('div');
+                    it.className = 'combo-item combo-empty';
+                    if (q) {
+                        it.innerHTML = `<i class="bi bi-plus-circle combo-icon"></i><span>ไม่พบ "${q}" — กด <strong>Enter</strong> หรือคลิกที่ใดก็ได้นอกช่อง เพื่อใช้เป็นชื่อใหม่</span>`;
+                    } else {
+                        it.innerHTML = '<i class="bi bi-info-circle combo-icon"></i><span>ยังไม่มีข้อมูล — พิมพ์ชื่อใหม่ได้เลย</span>';
+                    }
+                    listEl.appendChild(it);
+                    return;
+                }
+
+                filtered.forEach(name => {
+                    const it = document.createElement('div');
+                    it.className = 'combo-item';
+                    it.setAttribute('role','option');
+                    it.innerHTML = `<i class="bi bi-geo-alt-fill combo-icon"></i><span>${name}</span>`;
+                    it.addEventListener('mousedown', e => {
+                        e.preventDefault();
+                        // จะเซ็ตค่าตอน click (mousedown ก่อน blur)
+                    });
+                    it.addEventListener('click', () => {
+                        const wrap = listEl.closest('.combo-wrap');
+                        const input = wrap.querySelector('.combo-input');
+                        input.value = name;
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                        wrap.classList.remove('open');
+                    });
+                    listEl.appendChild(it);
+                });
+            }
+
+            function openCombo(wrap) {
+                // ปิด combo อื่นทั้งหมดก่อน
+                document.querySelectorAll('.combo-wrap.open').forEach(w => {
+                    if (w !== wrap) w.classList.remove('open');
+                });
+                wrap.classList.add('open');
+            }
+            function closeAllCombos() {
+                document.querySelectorAll('.combo-wrap.open').forEach(w => w.classList.remove('open'));
+            }
+
+            // ปุ่ม ▼ — toggle
+            document.querySelectorAll('.combo-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const wrap = btn.closest('.combo-wrap');
+                    const isOpen = wrap.classList.contains('open');
+                    if (isOpen) {
+                        closeAllCombos();
+                    } else {
+                        const input = wrap.querySelector('.combo-input');
+                        const listEl = wrap.querySelector('.combo-list');
+                        const targetId = btn.dataset.target;
+                        if (targetId === 'sampleLocation') {
+                            renderCombo(listEl, allLocations, input.value);
+                        } else {
+                            const { items, scoped, locName } = getPondsForCurrentLoc();
+                            const title = scoped ? `บ่อของ "${locName}"` : 'ทุกบ่อในระบบ';
+                            renderCombo(listEl, items, input.value, { sectionTitle: title });
+                        }
+                        openCombo(wrap);
+                        input.focus();
+                    }
+                });
+            });
+
+            // พิมพ์ในช่อง → เปิด list + filter live
+            [locInput, pondInput].forEach(input => {
+                if (!input) return;
+                input.addEventListener('focus', () => {
+                    const wrap = input.closest('.combo-wrap');
+                    const listEl = wrap.querySelector('.combo-list');
+                    if (input.id === 'sampleLocation') {
+                        renderCombo(listEl, allLocations, input.value);
+                    } else {
+                        const { items, scoped, locName } = getPondsForCurrentLoc();
+                        const title = scoped ? `บ่อของ "${locName}"` : 'ทุกบ่อในระบบ';
+                        renderCombo(listEl, items, input.value, { sectionTitle: title });
+                    }
+                    openCombo(wrap);
+                });
+                input.addEventListener('input', () => {
+                    const wrap = input.closest('.combo-wrap');
+                    const listEl = wrap.querySelector('.combo-list');
+                    if (input.id === 'sampleLocation') {
+                        renderCombo(listEl, allLocations, input.value);
+                    } else {
+                        const { items, scoped, locName } = getPondsForCurrentLoc();
+                        const title = scoped ? `บ่อของ "${locName}"` : 'ทุกบ่อในระบบ';
+                        renderCombo(listEl, items, input.value, { sectionTitle: title });
+                    }
+                    openCombo(wrap);
+                });
+                input.addEventListener('blur', () => {
+                    // delay เผื่อ click event ทำงานก่อน
+                    setTimeout(() => {
+                        const wrap = input.closest('.combo-wrap');
+                        if (wrap) wrap.classList.remove('open');
+                    }, 200);
+                });
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') closeAllCombos();
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        closeAllCombos();
+                    }
+                });
+            });
+
+            // คลิกข้างนอก combo → ปิด
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.combo-wrap')) closeAllCombos();
+            });
+
+            // โหลดข้อมูล locations + ponds จาก API
+            fetch('{{ url_for("api_locations_and_ponds") }}')
+                .then(r => r.json())
+                .then(data => {
+                    pondsByLocation = data.ponds_by_location || {};
+                    allLocations    = data.locations || [];
+                })
+                .catch(err => console.warn('Cannot load locations/ponds:', err));
+
+            // Remove invalid class on input
+            document.querySelectorAll('.form-control').forEach(el => {
+                el.addEventListener('input', () => el.classList.remove('is-invalid'));
+            });
+
+            // Highlight active sample type label
+            document.querySelectorAll('.type-opt input').forEach(r => {
+                r.addEventListener('change', () => {
+                    document.querySelectorAll('.type-lbl').forEach(l => l.style.fontWeight = '');
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

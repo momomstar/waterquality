@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Quality Monitor · ระบบติดตามคุณภาพน้ำ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #040e1f;
+      --navy2: #071428;
+      --navy3: #0a1f3d;
+      --sky: #00c2ff;
+      --sky2: #0090cc;
+      --sky-dim: rgba(0, 194, 255, .12);
+      --pass: #00e5a0;
+      --pass-dim: #00e5a020;
+      --near: #ffb830;
+      --near-dim: #ffb83020;
+      --fail: #ff4560;
+      --fail-dim: #ff456020;
+      --muted: #6b8cad;
+      --card: rgba(10, 31, 61, .7);
+      --card2: rgba(5, 18, 40, .85);
+      --glass: rgba(0, 194, 255, .06);
+      --glow-sky: 0 0 40px rgba(0, 194, 255, .25);
+      --glow-pass: 0 0 40px rgba(0, 229, 160, .2);
+      --glow-fail: 0 0 40px rgba(255, 69, 96, .25);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: var(--navy);
+      color: #c8dff0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── ANIMATED BG ── */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, #0a2a50 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, #001833 0%, transparent 60%),
+        var(--navy);
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0, 194, 255, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 194, 255, .03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(80px);
+      animation: drift 18s ease-in-out infinite;
+    }
+
+    .orb1 {
+      width: 500px;
+      height: 500px;
+      top: -200px;
+      left: -100px;
+      background: radial-gradient(circle, rgba(0, 194, 255, .08) 0%, transparent 70%);
+    }
+
+    .orb2 {
+      width: 400px;
+      height: 400px;
+      bottom: 10%;
+      right: -100px;
+      background: radial-gradient(circle, rgba(0, 229, 160, .06) 0%, transparent 70%);
+      animation-delay: -8s;
+    }
+
+    .orb3 {
+      width: 300px;
+      height: 300px;
+      top: 40%;
+      left: 30%;
+      background: radial-gradient(circle, rgba(0, 120, 200, .05) 0%, transparent 70%);
+      animation-delay: -4s;
+    }
+
+    @keyframes drift {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(30px, -20px) scale(1.05);
+      }
+
+      66% {
+        transform: translate(-20px, 15px) scale(.95);
+      }
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(4, 14, 31, .85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 194, 255, .1);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--sky), #0060a0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #fff;
+      box-shadow: 0 0 16px rgba(0, 194, 255, .4);
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+      display: block;
+      line-height: 1;
+      margin-top: 1px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 229, 160, .1);
+      border: 1px solid rgba(0, 229, 160, .25);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--pass);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pass);
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 6px var(--pass)
+      }
+
+      50% {
+        opacity: .4;
+        box-shadow: none
+      }
+    }
+
+    .btn-login {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 8px;
+      background: rgba(0, 194, 255, .1);
+      border: 1px solid rgba(0, 194, 255, .2);
+      color: var(--sky);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all .2s;
+    }
+
+    .btn-login:hover {
+      background: rgba(0, 194, 255, .2);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(0, 194, 255, .2);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      padding: 64px 24px 48px;
+      text-align: center;
+      /* ตัด overflow:hidden ออก เพราะมันตัดวรรณยุกต์ภาษาไทย (เช่น ้ บน "น้ำ") ที่ยื่นเหนือ line-box */
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(0, 194, 255, .08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;       /* กันไม่ให้ pseudo-element ไปบังตัวอักษร */
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 194, 255, .08);
+      border: 1px solid rgba(0, 194, 255, .2);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sky);
+      margin-bottom: 20px;
+      letter-spacing: .05em;
+    }
+
+    .hero-title {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      color: #fff;
+      /* line-height 1.1 เดิมเตี้ยเกินไปสำหรับภาษาไทยที่มีวรรณยุกต์ซ้อน
+         (เช่น น้ำ = น + ้ + ำ) — ทำให้ tone mark ้ ถูกตัด */
+      line-height: 1.35;
+      padding-block: 0.15em;        /* เผื่อพื้นที่ให้วรรณยุกต์ด้านบน */
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #fff 40%, rgba(0, 194, 255, .8));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-rendering: optimizeLegibility;  /* ช่วย Chrome เรนเดอร์ diacritics ภาษาไทยเสถียรขึ้น */
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 28px;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .hero-time {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, .3);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ── OVERALL STATUS ── */
+    .status-strip {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto 40px;
+      background: var(--card);
+      border: 1px solid rgba(0, 194, 255, .15);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .status-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .status-orb {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .status-orb::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      opacity: .3;
+      animation: orbit-pulse 2s infinite;
+    }
+
+    @keyframes orbit-pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: .3
+      }
+
+      50% {
+        transform: scale(1.15);
+        opacity: .1
+      }
+    }
+
+    .orb-pass {
+      background: var(--pass-dim);
+      color: var(--pass);
+      box-shadow: 0 0 24px rgba(0, 229, 160, .3);
+    }
+
+    .orb-near {
+      background: var(--near-dim);
+      color: var(--near);
+      box-shadow: 0 0 24px rgba(255, 184, 48, .3);
+    }
+
+    .orb-fail {
+      background: var(--fail-dim);
+      color: var(--fail);
+      box-shadow: 0 0 24px rgba(255, 69, 96, .3);
+    }
+
+    .status-text-main {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .status-text-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .status-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid;
+      font-family: 'Kanit', sans-serif;
+    }
+
+    .chip-pass {
+      background: var(--pass-dim);
+      border-color: rgba(0, 229, 160, .3);
+      color: var(--pass);
+    }
+
+    .chip-near {
+      background: var(--near-dim);
+      border-color: rgba(255, 184, 48, .3);
+      color: var(--near);
+    }
+
+    .chip-fail {
+      background: var(--fail-dim);
+      border-color: rgba(255, 69, 96, .3);
+      color: var(--fail);
+    }
+
+    /* ── PAGE WRAP ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+
+    /* ── KPI STRIP ── */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    @media(max-width:640px) {
+      .kpi-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .kpi {
+      background: var(--card);
+      border: 1px solid rgba(0, 194, 255, .1);
+      border-radius: 14px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .kpi:hover {
+      transform: translateY(-2px);
+    }
+
+    .kpi-accent {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+    }
+
+    .kpi-lbl {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .kpi-val {
+      font-size: 40px;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1;
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .kpi-bg-icon {
+      position: absolute;
+      right: 14px;
+      bottom: 10px;
+      font-size: 40px;
+      opacity: .05;
+      line-height: 1;
+    }
+
+    .kv-sky {
+      color: var(--sky);
+    }
+
+    .kv-pass {
+      color: var(--pass);
+    }
+
+    .kv-near {
+      color: var(--near);
+    }
+
+    .kv-fail {
+      color: var(--fail);
+    }
+
+    /* ── SECTION TITLE ── */
+    .sec-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .sec-title-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(0, 194, 255, .2), transparent);
+    }
+
+    .sec-title-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sky);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      white-space: nowrap;
+    }
+
+    .sec-badge {
+      font-size: 10px;
+      color: var(--muted);
+      background: rgba(0, 194, 255, .06);
+      border: 1px solid rgba(0, 194, 255, .12);
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* ── TWIN STATS (monthly + params) ── */
+    .twin-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    @media(max-width:640px) {
+      .twin-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid rgba(0, 194, 255, .1);
+      border-radius: 16px;
+      padding: 22px 24px;
+      backdrop-filter: blur(12px);
+    }
+
+    .stat-card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card-title i {
+      color: var(--sky);
+      font-size: 14px;
+    }
+
+    .big-pct {
+      font-size: 64px;
+      font-weight: 800;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1;
+      letter-spacing: -.02em;
+    }
+
+    .big-pct-unit {
+      font-size: 24px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .progress-track {
+      height: 6px;
+      background: rgba(255, 255, 255, .06);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 16px 0 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width .8s ease;
+    }
+
+    .pf-pass {
+      background: linear-gradient(90deg, var(--pass), #00c87a);
+      box-shadow: 0 0 12px rgba(0, 229, 160, .4);
+    }
+
+    .pf-near {
+      background: linear-gradient(90deg, var(--near), #e0a020);
+    }
+
+    .pf-fail {
+      background: linear-gradient(90deg, var(--fail), #cc2040);
+    }
+
+    .progress-note {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* param bars */
+    .param-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .param-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pb-name {
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #c8dff0;
+      min-width: 42px;
+    }
+
+    .pb-track {
+      flex: 1;
+      height: 5px;
+      background: rgba(255, 255, 255, .06);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .pb-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .pbf-high {
+      background: var(--fail);
+      box-shadow: 0 0 8px rgba(255, 69, 96, .4);
+    }
+
+    .pbf-mid {
+      background: var(--near);
+    }
+
+    .pbf-low {
+      background: var(--sky);
+    }
+
+    .pb-pct {
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      min-width: 32px;
+      text-align: right;
+    }
+
+    .pb-days {
+      font-size: 10px;
+      color: var(--muted);
+      min-width: 28px;
+      text-align: right;
+    }
+
+    /* ── LOCATION GROUP ── */
+    .loc-group {
+      margin-bottom: 36px;
+    }
+
+    .loc-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      padding: 14px 18px;
+      background: rgba(0, 194, 255, .04);
+      border: 1px solid rgba(0, 194, 255, .12);
+      border-radius: 12px;
+    }
+
+    .loc-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+    }
+
+    .li-pass {
+      background: var(--pass-dim);
+      color: var(--pass);
+    }
+
+    .li-near {
+      background: var(--near-dim);
+      color: var(--near);
+    }
+
+    .li-fail {
+      background: var(--fail-dim);
+      color: var(--fail);
+    }
+
+    .loc-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .loc-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .loc-chips {
+      display: flex;
+      gap: 6px;
+      margin-left: auto;
+      flex-wrap: wrap;
+    }
+
+    .lc {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid;
+    }
+
+    .lc-pass {
+      background: var(--pass-dim);
+      border-color: rgba(0, 229, 160, .3);
+      color: var(--pass);
+    }
+
+    .lc-near {
+      background: var(--near-dim);
+      border-color: rgba(255, 184, 48, .3);
+      color: var(--near);
+    }
+
+    .lc-fail {
+      background: var(--fail-dim);
+      border-color: rgba(255, 69, 96, .3);
+      color: var(--fail);
+    }
+
+    /* status bar under loc header */
+    .loc-bar {
+      height: 3px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      gap: 3px;
+      margin-bottom: 16px;
+    }
+
+    .lb-seg {
+      height: 100%;
+      border-radius: 2px;
+    }
+
+    /* ── POND GRID ── */
+    .pond-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+
+    /* ── POND CARD ── */
+    .pond-card {
+      background: var(--card2);
+      border: 1px solid rgba(0, 194, 255, .1);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      position: relative;
+    }
+
+    .pond-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(0, 194, 255, .25);
+      box-shadow: var(--glow-sky);
+    }
+
+    .pond-card.pc-pass:hover {
+      border-color: rgba(0, 229, 160, .3);
+      box-shadow: var(--glow-pass);
+    }
+
+    .pond-card.pc-fail:hover {
+      border-color: rgba(255, 69, 96, .3);
+      box-shadow: var(--glow-fail);
+    }
+
+    .pond-card-stripe {
+      height: 3px;
+      background: linear-gradient(90deg, rgba(0, 194, 255, .5), transparent);
+    }
+
+    .pc-pass .pond-card-stripe {
+      background: linear-gradient(90deg, var(--pass), transparent);
+    }
+
+    .pc-near .pond-card-stripe {
+      background: linear-gradient(90deg, var(--near), transparent);
+    }
+
+    .pc-fail .pond-card-stripe {
+      background: linear-gradient(90deg, var(--fail), transparent);
+    }
+
+    .pond-top {
+      padding: 16px 18px 14px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(0, 194, 255, .08);
+    }
+
+    .pond-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+    }
+
+    .pond-loc-tag {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .sb-pass {
+      background: var(--pass-dim);
+      border-color: rgba(0, 229, 160, .35);
+      color: var(--pass);
+    }
+
+    .sb-near {
+      background: var(--near-dim);
+      border-color: rgba(255, 184, 48, .35);
+      color: var(--near);
+    }
+
+    .sb-fail {
+      background: var(--fail-dim);
+      border-color: rgba(255, 69, 96, .35);
+      color: var(--fail);
+    }
+
+    .sb-none {
+      background: rgba(255, 255, 255, .04);
+      border-color: rgba(255, 255, 255, .1);
+      color: var(--muted);
+    }
+
+    /* POND BODY */
+    .pond-body {
+      padding: 16px 18px;
+    }
+
+    .score-section {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .ring-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .ring-svg {
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, .06);
+      stroke-width: 8;
+    }
+
+    .ring-arc {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset .8s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .ra-pass {
+      stroke: var(--pass);
+      filter: drop-shadow(0 0 6px rgba(0, 229, 160, .5));
+    }
+
+    .ra-near {
+      stroke: var(--near);
+      filter: drop-shadow(0 0 6px rgba(255, 184, 48, .5));
+    }
+
+    .ra-fail {
+      stroke: var(--fail);
+      filter: drop-shadow(0 0 6px rgba(255, 69, 96, .5));
+    }
+
+    .ra-none {
+      stroke: rgba(255, 255, 255, .15);
+    }
+
+    .ring-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-num {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1;
+    }
+
+    .ring-denom {
+      font-size: 9px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .score-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .score-date {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .param-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .ptag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .ptag-pass {
+      background: var(--pass-dim);
+      border-color: rgba(0, 229, 160, .25);
+      color: var(--pass);
+    }
+
+    .ptag-near {
+      background: var(--near-dim);
+      border-color: rgba(255, 184, 48, .25);
+      color: var(--near);
+    }
+
+    .ptag-fail {
+      background: var(--fail-dim);
+      border-color: rgba(255, 69, 96, .25);
+      color: var(--fail);
+    }
+
+    /* Param bars in pond card */
+    .pond-params {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 14px;
+    }
+
+    .pp-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .pp-label {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .pp-name {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+
+    .pp-val {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .pv-ok {
+      color: var(--pass);
+    }
+
+    .pv-nr {
+      color: var(--near);
+    }
+
+    .pv-ov {
+      color: var(--fail);
+    }
+
+    .pp-bar {
+      height: 3px;
+      background: rgba(255, 255, 255, .06);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .pp-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .ppf-ok {
+      background: var(--pass);
+    }
+
+    .ppf-nr {
+      background: var(--near);
+    }
+
+    .ppf-ov {
+      background: var(--fail);
+    }
+
+    /* pond footer */
+    .pond-foot {
+      padding: 10px 18px;
+      border-top: 1px solid rgba(0, 194, 255, .06);
+      background: rgba(0, 0, 0, .15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .pond-stats {
+      display: flex;
+      gap: 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .ps-p {
+      color: var(--pass);
+    }
+
+    .ps-n {
+      color: var(--near);
+    }
+
+    .ps-f {
+      color: var(--fail);
+    }
+
+    .pond-type {
+      font-size: 10px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, .04);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    /* ── CRISIS BANNER ── */
+    .crisis-banner {
+      background: rgba(255, 69, 96, .06);
+      border: 1px solid rgba(255, 69, 96, .2);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .crisis-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--fail-dim);
+      color: var(--fail);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      animation: alarm 2s infinite;
+    }
+
+    @keyframes alarm {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 69, 96, .3)
+      }
+
+      50% {
+        box-shadow: 0 0 0 8px rgba(255, 69, 96, 0)
+      }
+    }
+
+    .crisis-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--fail);
+      margin-bottom: 8px;
+    }
+
+    .crisis-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .ctag {
+      background: var(--fail-dim);
+      border: 1px solid rgba(255, 69, 96, .25);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--fail);
+    }
+
+    /* ── REFERENCE TABLE ── */
+    .ref-table-wrap {
+      background: var(--card);
+      border: 1px solid rgba(0, 194, 255, .1);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      margin-bottom: 24px;
+    }
+
+    .ref-table-head {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(0, 194, 255, .1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ref-table-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sky);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .ref-table th {
+      padding: 10px 18px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      border-bottom: 1px solid rgba(0, 194, 255, .08);
+    }
+
+    .ref-table td {
+      padding: 10px 18px;
+      border-bottom: 1px solid rgba(0, 194, 255, .06);
+    }
+
+    .ref-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .ref-table tr:hover td {
+      background: rgba(0, 194, 255, .03);
+    }
+
+    .ref-param {
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--sky);
+    }
+
+    .ref-std {
+      display: inline-block;
+      background: rgba(0, 194, 255, .08);
+      border: 1px solid rgba(0, 194, 255, .2);
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--sky);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .ref-desc {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── EXPLAINER ── */
+    .explainer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    @media(max-width:640px) {
+      .explainer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .exp-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid rgba(0, 194, 255, .1);
+      text-align: center;
+      backdrop-filter: blur(12px);
+      transition: transform .2s;
+    }
+
+    .exp-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .exp-emoji {
+      font-size: 32px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .exp-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .exp-range {
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 8px;
+    }
+
+    .exp-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      background: rgba(4, 14, 31, .9);
+      border-top: 1px solid rgba(0, 194, 255, .1);
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .site-footer a {
+      color: var(--sky);
+      text-decoration: none;
+    }
+
+    /* ── REFRESH BAR ── */
+    .refresh-strip {
+      background: rgba(0, 194, 255, .06);
+      border: 1px solid rgba(0, 194, 255, .12);
+      border-radius: 10px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--sky);
+      margin-top: 24px;
+    }
+
+    .rf-prog {
+      flex: 1;
+      height: 2px;
+      background: rgba(0, 194, 255, .15);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .rf-fill {
+      height: 100%;
+      background: var(--sky);
+      border-radius: 999px;
+      animation: countdown 300s linear forwards;
+    }
+
+    @keyframes countdown {
+      from {
+        width: 100%
+      }
+
+      to {
+        width: 0%
+      }
+    }
+
+    /* ── EMPTY ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--muted);
+    }
+
+    .empty-state i {
+      font-size: 52px;
+      opacity: .2;
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    /* SCROLL REVEAL */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="bg-canvas"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+
+  <!-- TOPBAR -->
+  <nav class="topbar">
+    <a class="topbar-brand" href="#">
+      <div class="brand-icon"><i class="bi bi-droplet-fill"></i></div>
+      <div>
+        <span>WaterQuality</span>
+        <span class="brand-sub">ระบบติดตามคุณภาพน้ำ</span>
+      </div>
+    </a>
+    <div class="topbar-right">
+      <div class="live-badge">
+        <div class="live-dot"></div> LIVE
+      </div>
+      <a class="btn-login" href="{{ url_for('login') }}">
+        <i class="bi bi-person-circle"></i> เจ้าหน้าที่
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <i class="bi bi-shield-check-fill"></i> ข้อมูลสาธารณะ · เข้าถึงได้โดยไม่ต้องสมัครสมาชิก
+    </div>
+    <h1 class="hero-title">ระบบติดตามคุณภาพน้ำ<br>ในโรงพยาบาล</h1>
+    <p class="hero-sub">ประเมินคุณภาพน้ำทิ้งจากระบบบำบัดด้วย Fuzzy Logic </p>
+    <div class="hero-time">
+      <i class="bi bi-clock"></i>
+      อัปเดต: {{ last_update.strftime('%d/%m/%Y %H:%M') if last_update else '–' }} น.
+      &nbsp;·&nbsp; <span id="relTime">–</span>
+    </div>
+  </div>
+
+  <!-- STATUS STRIP -->
+  {% set has_fail = overall_stats.fail > 0 %}
+  {% set has_near = overall_stats.near_limit > 0 %}
+  <div style="position:relative;z-index:1;max-width:760px;margin:0 auto 40px;padding:0 20px">
+    <div class="status-strip">
+      <div class="status-main">
+        <div class="status-orb {% if has_fail %}orb-fail{% elif has_near %}orb-near{% else %}orb-pass{% endif %}">
+          {% if has_fail %}<i class="bi bi-exclamation-triangle-fill"></i>
+          {% elif has_near %}<i class="bi bi-exclamation-circle-fill"></i>
+          {% else %}<i class="bi bi-shield-check-fill"></i>{% endif %}
+        </div>
+        <div>
+          <div class="status-text-main">
+            {% if has_fail %}มีบ่อที่ต้องแก้ไขด่วน
+            {% elif has_near %}บางบ่ออยู่ในเกณฑ์เฝ้าระวัง
+            {% else %}ทุกบ่อผ่านมาตรฐาน ✓{% endif %}
+          </div>
+          <div class="status-text-sub">ภาพรวมระบบบำบัด · {{ overall_stats.total }} บ่อ</div>
+        </div>
+      </div>
+      <div class="status-chips">
+        <div class="chip chip-pass"><i class="bi bi-check-circle-fill"></i> {{ overall_stats.pass }} ผ่าน</div>
+        <div class="chip chip-near"><i class="bi bi-exclamation-triangle-fill"></i> {{ overall_stats.near_limit }} ระวัง
+        </div>
+        <div class="chip chip-fail"><i class="bi bi-x-circle-fill"></i> {{ overall_stats.fail }} เกิน</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- KPI -->
+    <div class="kpi-strip reveal">
+      <div class="kpi">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,var(--sky),transparent)"></div>
+        <div class="kpi-lbl">บ่อในระบบ</div>
+        <div class="kpi-val kv-sky">{{ overall_stats.total }}</div>
+        <div class="kpi-sub">บ่อบำบัดทั้งหมด</div>
+        <div class="kpi-bg-icon">🏭</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,var(--pass),transparent)"></div>
+        <div class="kpi-lbl">ผ่านมาตรฐาน</div>
+        <div class="kpi-val kv-pass">{{ overall_stats.pass }}</div>
+        <div class="kpi-sub">Score ≥ 70</div>
+        <div class="kpi-bg-icon">✅</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,var(--near),transparent)"></div>
+        <div class="kpi-lbl">เฝ้าระวัง</div>
+        <div class="kpi-val kv-near">{{ overall_stats.near_limit }}</div>
+        <div class="kpi-sub">Score 50–69</div>
+        <div class="kpi-bg-icon">⚠️</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,var(--fail),transparent)"></div>
+        <div class="kpi-lbl">ต้องแก้ไข</div>
+        <div class="kpi-val kv-fail">{{ overall_stats.fail }}</div>
+        <div class="kpi-sub">Score &lt; 50</div>
+        <div class="kpi-bg-icon">🔴</div>
+      </div>
+    </div>
+
+    <!-- CRISIS BANNER -->
+    {% if crisis_params is defined and crisis_params %}
+    <div class="crisis-banner reveal">
+      <div class="crisis-icon"><i class="bi bi-exclamation-octagon-fill"></i></div>
+      <div>
+        <div class="crisis-title">⚠ พบค่าเกินมาตรฐานวิกฤต (เกิน 2× มาตรฐาน)</div>
+        <div class="crisis-tags">
+          {% for cp in crisis_params %}
+          <span class="ctag">{{ cp.pond }} · {{ cp.param }}: {{ cp.value }} ({{ cp.times }}×)</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- TWIN STATS -->
+    <div class="twin-stats reveal">
+      <!-- อัตราผ่าน 30 วัน -->
+      <div class="stat-card">
+        <div class="stat-card-title">
+          <i class="bi bi-calendar-check"></i> อัตราผ่านมาตรฐาน 30 วันล่าสุด
+        </div>
+        {% if monthly_pass_rate is defined %}
+        {% set prt = monthly_pass_rate %}
+        <div style="display:flex;align-items:flex-end;gap:8px">
+          <div class="big-pct {% if prt>=80 %}kv-pass{% elif prt>=50 %}kv-near{% else %}kv-fail{% endif %}">
+            {{ prt }}<span class="big-pct-unit">%</span>
+          </div>
+          <div style="padding-bottom:8px">
+            <span style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;
+            {% if prt>=80 %}background:var(--pass-dim);color:var(--pass);border:1px solid rgba(0,229,160,.3)
+            {% elif prt>=50 %}background:var(--near-dim);color:var(--near);border:1px solid rgba(255,184,48,.3)
+            {% else %}background:var(--fail-dim);color:var(--fail);border:1px solid rgba(255,69,96,.3){% endif %}">
+              {% if prt>=80 %}อยู่ในเกณฑ์ดี{% elif prt>=50 %}ต้องปรับปรุง{% else %}วิกฤต{% endif %}
+            </span>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill {% if prt>=80 %}pf-pass{% elif prt>=50 %}pf-near{% else %}pf-fail{% endif %}"
+            style="width:{{ prt }}%"></div>
+        </div>
+        <div class="progress-note">ผ่านมาตรฐาน {{ monthly_pass_days }} วัน จาก {{ monthly_total_days }} วันที่มีข้อมูล
+        </div>
+        {% else %}
+        <div style="color:var(--muted);padding:16px 0">ไม่มีข้อมูล</div>
+        {% endif %}
+      </div>
+
+      <!-- พารามิเตอร์ปัญหา -->
+      <div class="stat-card">
+        <div class="stat-card-title">
+          <i class="bi bi-bar-chart-fill"></i> พารามิเตอร์ที่มีปัญหาบ่อยสุด
+        </div>
+        {% if top_problem_params is defined and top_problem_params %}
+        <div class="param-list">
+          {% for pp in top_problem_params[:5] %}
+          <div class="param-bar-row">
+            <span class="pb-name">{{ pp.param }}</span>
+            <div class="pb-track">
+              <div class="pb-fill {% if pp.rate>=70 %}pbf-high{% elif pp.rate>=40 %}pbf-mid{% else %}pbf-low{% endif %}"
+                style="width:{{ pp.rate }}%"></div>
+            </div>
+            <span class="pb-pct {% if pp.rate>=70 %}kv-fail{% elif pp.rate>=40 %}kv-near{% else %}kv-sky{% endif %}">
+              {{ pp.rate }}%
+            </span>
+            <span class="pb-days">{{ pp.days }}วัน</span>
+          </div>
+          {% endfor %}
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:10px">% = จำนวนวันที่เกินมาตรฐาน จาก 30 วันล่าสุด</div>
+        {% else %}
+        <div
+          style="color:var(--pass);font-size:13px;font-weight:600;padding:16px 0;display:flex;align-items:center;gap:7px">
+          <i class="bi bi-check-circle-fill"></i> ทุกพารามิเตอร์อยู่ในเกณฑ์ปกติ
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- POND CARDS -->
+    <div class="sec-title reveal">
+      <div class="sec-title-line"></div>
+      <span class="sec-title-text"><i class="bi bi-droplet-half"></i> &nbsp;สถานะบ่อบำบัดน้ำ</span>
+      <span class="sec-badge">แยกตามสถานที่ · ข้อมูลล่าสุด</span>
+      <div class="sec-title-line" style="background:linear-gradient(270deg,rgba(0,194,255,.2),transparent)"></div>
+    </div>
+
+    {% if all_ponds %}
+    {% set seen = [] %}
+    {% for p in all_ponds %}{% if p.get('location') not in seen %}{% set _ = seen.append(p.get('location')) %}{% endif
+    %}{% endfor %}
+
+    {% for loc in seen %}
+    {% set np = [] %}{% set nn = [] %}{% set nf = [] %}
+    {% for p in all_ponds %}{% if p.get('location')==loc %}
+    {% if p.get('status')=='Pass' %}{% set _ = np.append(1) %}
+    {% elif p.get('status')=='Near Limit' %}{% set _ = nn.append(1) %}
+    {% else %}{% set _ = nf.append(1) %}{% endif %}
+    {% endif %}{% endfor %}
+    {% set lw = 'fail' if nf|length>0 else 'near' if nn|length>0 else 'pass' %}
+    {% set nt = np|length+nn|length+nf|length %}
+
+    <div class="loc-group reveal">
+      <div class="loc-header">
+        <div class="loc-icon li-{{ lw }}"><i class="bi bi-building"></i></div>
+        <div>
+          <div class="loc-name">{{ loc or 'ไม่ระบุสถานที่' }}</div>
+          <div class="loc-meta">{{ nt }} บ่อ</div>
+        </div>
+        <div class="loc-chips" style="margin-left:auto">
+          {% if np|length>0 %}<div class="lc lc-pass"><i class="bi bi-check-circle-fill"></i> {{ np|length }}</div>{%
+          endif %}
+          {% if nn|length>0 %}<div class="lc lc-near"><i class="bi bi-exclamation-triangle-fill"></i> {{ nn|length }}
+          </div>{% endif %}
+          {% if nf|length>0 %}<div class="lc lc-fail"><i class="bi bi-x-circle-fill"></i> {{ nf|length }}</div>{% endif
+          %}
+        </div>
+      </div>
+
+      {% if nt>0 %}
+      <div class="loc-bar">
+        {% if np|length>0 %}<div class="lb-seg" style="flex:{{ np|length }};background:var(--pass)"></div>{% endif %}
+        {% if nn|length>0 %}<div class="lb-seg" style="flex:{{ nn|length }};background:var(--near)"></div>{% endif %}
+        {% if nf|length>0 %}<div class="lb-seg" style="flex:{{ nf|length }};background:var(--fail)"></div>{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="pond-grid">
+        {% for pond in all_ponds %}{% if pond.get('location')==loc %}
+        {% set sc = pond.get('fuzzy_score') %}
+        {% set s = pond.get('status') %}
+        {% set circ = 201 %}
+        {% set offset = (circ-(sc/100*circ)) if sc is not none else circ %}
+        {% set rc = 'ra-pass' if s=='Pass' else 'ra-near' if s=='Near Limit' else 'ra-fail' if sc is not none else
+        'ra-none' %}
+        {% set pc = 'pc-pass' if s=='Pass' else 'pc-near' if s=='Near Limit' else 'pc-fail' if sc is not none else '' %}
+
+        <div class="pond-card {{ pc }}">
+          <div class="pond-card-stripe"></div>
+          <div class="pond-top">
+            <div>
+              <div class="pond-name">{{ pond.get('pond_name') }}</div>
+              <div class="pond-loc-tag"><i class="bi bi-layers" style="font-size:9px"></i> {{ pond.get('sample_type') or
+                'หลังบำบัด' }}</div>
+            </div>
+            {% if s=='Pass' %}<span class="status-badge sb-pass"><i class="bi bi-check-circle-fill"></i> ผ่าน</span>
+            {% elif s=='Near Limit' %}<span class="status-badge sb-near"><i class="bi bi-exclamation-triangle-fill"></i>
+              ระวัง</span>
+            {% elif sc is not none %}<span class="status-badge sb-fail"><i class="bi bi-x-circle-fill"></i> เกิน</span>
+            {% else %}<span class="status-badge sb-none"><i class="bi bi-dash-circle"></i> ไม่มีข้อมูล</span>{% endif %}
+          </div>
+
+          <div class="pond-body">
+            <div class="score-section">
+              <div class="ring-wrap">
+                <svg class="ring-svg" width="72" height="72" viewBox="0 0 72 72">
+                  <circle class="ring-bg" cx="36" cy="36" r="32" />
+                  <circle class="{{ rc }} ring-arc" cx="36" cy="36" r="32" stroke-dasharray="{{ circ }}"
+                    stroke-dashoffset="{{ offset }}" />
+                </svg>
+                <div class="ring-inner">
+                  <div class="ring-num"
+                    style="color:{% if s=='Pass' %}var(--pass){% elif s=='Near Limit' %}var(--near){% elif sc is not none %}var(--fail){% else %}var(--muted){% endif %}">
+                    {{ sc if sc is not none else '–' }}
+                  </div>
+                  <div class="ring-denom">/100</div>
+                </div>
+              </div>
+
+              <div class="score-meta">
+                <div class="score-date">
+                  <i class="bi bi-clock"></i>
+                  {{ pond.get('sample_date').strftime('%d/%m/%Y %H:%M') if pond.get('sample_date') else '–' }}
+                </div>
+                <div class="param-tags">
+                  {% set ph = pond.get('pH') %}
+                  {% set bod = pond.get('BOD') %}
+                  {% set cod = pond.get('COD') %}
+                  {% set tss = pond.get('TSS') %}
+                  {% if ph is not none %}
+                  <span class="ptag {% if ph>=6.5 and ph<=8.5 %}ptag-pass{% else %}ptag-fail{% endif %}">pH {{ ph
+                    }}</span>
+                  {% endif %}
+                  {% if bod is not none %}
+                  <span
+                    class="ptag {% if bod<=20 %}ptag-pass{% elif bod<=22 %}ptag-near{% else %}ptag-fail{% endif %}">BOD
+                    {{ bod }}</span>
+                  {% endif %}
+                  {% if cod is not none %}
+                  <span
+                    class="ptag {% if cod<=120 %}ptag-pass{% elif cod<=132 %}ptag-near{% else %}ptag-fail{% endif %}">COD
+                    {{ cod }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Mini bars -->
+            <div class="pond-params">
+              {% for pn, pv, ps in
+              [('BOD',pond.get('BOD'),20),('COD',pond.get('COD'),120),('TSS',pond.get('TSS'),50),('FCB',pond.get('FCB'),4000)]
+              %}
+              {% if pv is not none %}
+              {% set pct = [pv/ps*100,150]|min %}
+              {% set vc = 'pv-ok' if pv<=ps else 'pv-nr' if pv<=ps*1.1 else 'pv-ov' %} {% set bc='ppf-ok' if pv<=ps
+                else 'ppf-nr' if pv<=ps*1.1 else 'ppf-ov' %} <div class="pp-row">
+                <div class="pp-label">
+                  <span class="pp-name">{{ pn }}</span>
+                  <span class="pp-val {{ vc }}">{{ pv }}</span>
+                </div>
+                <div class="pp-bar">
+                  <div class="pp-fill {{ bc }}" style="width:{{ pct }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="pond-foot">
+          <div class="pond-stats">
+            <span class="ps-p"><i class="bi bi-check-circle"></i> {{ pond.get('pass_count','–') }}</span>
+            <span class="ps-n"><i class="bi bi-exclamation-triangle"></i> {{ pond.get('near_limit_count','–') }}</span>
+            <span class="ps-f"><i class="bi bi-x-circle"></i> {{ pond.get('fail_count','–') }}</span>
+          </div>
+          <span class="pond-type">{{ pond.get('sample_type') or 'หลังบำบัด' }}</span>
+        </div>
+      </div>
+      {% endif %}{% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="empty-state reveal">
+    <i class="bi bi-inbox"></i>
+    <div style="font-size:16px;font-weight:600;color:#fff;margin-bottom:8px">ยังไม่มีข้อมูล</div>
+    <div style="font-size:13px">รอการบันทึกข้อมูลจากเจ้าหน้าที่</div>
+  </div>
+  {% endif %}
+
+  <!-- REFRESH -->
+  <div class="refresh-strip reveal">
+    <i class="bi bi-arrow-clockwise" style="color:var(--sky)"></i>
+    <span>หน้านี้จะรีเฟรชอัตโนมัติทุก 5 นาที</span>
+    <div class="rf-prog">
+      <div class="rf-fill"></div>
+    </div>
+    <span id="countdown" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--sky)">5:00</span>
+  </div>
+
+  </div><!-- /page -->
+
+  <footer class="site-footer">
+    <i class="bi bi-droplet-fill" style="color:var(--sky)"></i> &nbsp;
+    Water Quality System &nbsp;·&nbsp; Fuzzy Logic (Mamdani FIS) &nbsp;·&nbsp;
+    <a href="{{ url_for('login') }}">เข้าสู่ระบบสำหรับเจ้าหน้าที่</a> &nbsp;·&nbsp; © 2025–2026
+  </footer>
+
+  <script>
+    // countdown
+    let s = 300;
+    const cd = document.getElementById('countdown');
+    setInterval(() => {
+      s--; if (s <= 0) { location.reload(); return; }
+      const m = Math.floor(s / 60), sec = s % 60;
+      if (cd) cd.textContent = m + ':' + String(sec).padStart(2, '0');
+    }, 1000);
+
+    // relative time
+    (function () {
+      const raw = '{{ last_update.strftime("%Y-%m-%dT%H:%M:%S") if last_update else "" }}';
+      const el = document.getElementById('relTime'); if (!el || !raw) return;
+      function fmt() {
+        const d = Math.floor((Date.now() - new Date(raw)) / 1000);
+        if (d < 60) return 'เมื่อกี้';
+        if (d < 3600) return Math.floor(d / 60) + ' นาทีที่แล้ว';
+        if (d < 86400) return Math.floor(d / 3600) + ' ชั่วโมงที่แล้ว';
+        return Math.floor(d / 86400) + ' วันที่แล้ว';
+      }
+      el.textContent = fmt(); setInterval(() => { el.textContent = fmt(); }, 30000);
+    })();
+
+    // scroll reveal
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  </script>
+</body>
+
+</html>

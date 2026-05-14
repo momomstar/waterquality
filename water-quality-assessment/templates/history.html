@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ประวัติการประเมิน - Water Quality System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --navy: #0f2744;
+            --navy2: #1a3a6b;
+            --sky: #0ea5e9;
+            --sky2: #0284c7;
+            --sky-lt: #e0f2fe;
+            --sky-bd: #bae6fd;
+            --pass: #059669;
+            --pass-bg: #d1fae5;
+            --pass-bd: #a7f3d0;
+            --near: #d97706;
+            --near-bg: #fef3c7;
+            --near-bd: #fde68a;
+            --fail: #dc2626;
+            --fail-bg: #fee2e2;
+            --fail-bd: #fca5a5;
+            --muted: #64748b;
+            --border: rgba(15, 39, 68, .10);
+            --border2: rgba(15, 39, 68, .16);
+            --card: #ffffff;
+            --bg: #f1f5f9;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 14px;
+            color: var(--navy);
+            background: var(--bg);
+        }
+
+        .outer-wrap {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .page-wrap {
+            width: 100%;
+            max-width: 1280px;
+            padding: 20px 24px 60px;
+        }
+
+        @media (max-width: 768px) {
+            .history-layout {
+                flex-direction: column;
+            }
+
+            .filter-sidebar {
+                width: 100%;
+                position: static;
+            }
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .ph-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ph-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
+            background: var(--navy);
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .ph-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--navy);
+            margin: 0;
+        }
+
+        .ph-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 9px;
+            border: none;
+            background: var(--sky);
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all .15s;
+        }
+
+        .btn-add:hover {
+            background: var(--sky2);
+            color: #fff;
+        }
+
+        .btn-sm-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all .15s;
+            font-family: 'Sarabun', sans-serif;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-edit {
+            background: var(--sky-lt);
+            border-color: var(--sky-bd);
+            color: var(--sky2);
+        }
+
+        .btn-edit:hover {
+            background: var(--sky);
+            border-color: var(--sky);
+            color: #fff;
+        }
+
+        .btn-del {
+            background: var(--fail-bg);
+            border-color: var(--fail-bd);
+            color: var(--fail);
+        }
+
+        .btn-del:hover {
+            background: var(--fail);
+            border-color: var(--fail);
+            color: #fff;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            border: 1px solid;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .alert-success {
+            background: var(--pass-bg);
+            border-color: var(--pass-bd);
+            color: #064e3b;
+        }
+
+        .alert-danger {
+            background: var(--fail-bg);
+            border-color: var(--fail-bd);
+            color: #7f1d1d;
+        }
+
+        .alert-info {
+            background: var(--sky-lt);
+            border-color: var(--sky-bd);
+            color: #0c4a6e;
+        }
+
+        .alert-warning {
+            background: var(--near-bg);
+            border-color: var(--near-bd);
+            color: #78350f;
+        }
+
+        .alert-close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: .6;
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .card-head {
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .card-head-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-head-title i {
+            color: var(--sky);
+        }
+
+        .total-badge {
+            background: var(--sky-lt);
+            border: 1px solid var(--sky-bd);
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #0369a1;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* SIDEBAR LAYOUT */
+        .history-layout {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .filter-sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            background: var(--card);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 16px;
+            position: sticky;
+            top: 16px;
+        }
+
+        .filter-sidebar-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-section {
+            margin-bottom: 16px;
+        }
+
+        .filter-section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border2);
+            font-size: 12px;
+            font-family: 'Sarabun', sans-serif;
+            background: #fff;
+            color: var(--navy);
+            transition: border-color .15s;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--sky);
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border2);
+            font-size: 12px;
+            font-family: 'Sarabun', sans-serif;
+            background: #fff;
+            color: var(--navy);
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--sky);
+        }
+
+        /* CHIPS */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid;
+            cursor: pointer;
+            transition: all .15s;
+            background: none;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .chip-all {
+            background: var(--sky-lt);
+            border-color: var(--sky-bd);
+            color: #0369a1;
+        }
+
+        .chip-pass {
+            background: var(--pass-bg);
+            border-color: var(--pass-bd);
+            color: var(--pass);
+        }
+
+        .chip-near {
+            background: var(--near-bg);
+            border-color: var(--near-bd);
+            color: var(--near);
+        }
+
+        .chip-fail {
+            background: var(--fail-bg);
+            border-color: var(--fail-bd);
+            color: var(--fail);
+        }
+
+        .chip-skip {
+            background: #f1f5f9;
+            border-color: var(--border2);
+            color: var(--muted);
+        }
+
+        .chip.active {
+            opacity: 1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+        }
+
+        .chip:not(.active) {
+            opacity: .65;
+        }
+
+        .chip:hover {
+            opacity: 1;
+        }
+
+        /* TABLE */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .data-table th {
+            background: var(--navy);
+            color: #fff;
+            padding: 10px 12px;
+            font-weight: 600;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        .data-table th:last-child {
+            text-align: center;
+        }
+
+        .data-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        .data-table tr.tr-pass td:first-child {
+            border-left: 3px solid var(--pass);
+        }
+
+        .data-table tr.tr-near td:first-child {
+            border-left: 3px solid var(--near);
+        }
+
+        .data-table tr.tr-fail td:first-child {
+            border-left: 3px solid var(--fail);
+        }
+
+        .data-table tr.tr-skip td:first-child {
+            border-left: 3px solid #cbd5e1;
+        }
+
+        .data-table tr:first-child td {
+            border-top: none;
+        }
+
+        .cell-date-main {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .cell-date-sub {
+            font-size: 10px;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .cell-location {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .cell-pond {
+            font-size: 11px;
+            color: var(--muted);
+            max-width: 120px;
+            line-height: 1.3;
+        }
+
+        .cell-type {
+            font-size: 11px;
+        }
+
+        .cell-num {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+        }
+
+        .cell-num.over {
+            color: var(--fail);
+            font-weight: 600;
+        }
+
+        .cell-num.near {
+            color: var(--near);
+            font-weight: 600;
+        }
+
+        .score-val {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .score-pass {
+            color: var(--pass);
+        }
+
+        .score-near {
+            color: var(--near);
+        }
+
+        .score-fail {
+            color: var(--fail);
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .pill-pass {
+            background: var(--pass-bg);
+            border-color: var(--pass-bd);
+            color: var(--pass);
+        }
+
+        .pill-near {
+            background: var(--near-bg);
+            border-color: var(--near-bd);
+            color: var(--near);
+        }
+
+        .pill-fail {
+            background: var(--fail-bg);
+            border-color: var(--fail-bd);
+            color: var(--fail);
+        }
+
+        .pill-skip {
+            background: #f1f5f9;
+            border-color: var(--border2);
+            color: var(--muted);
+        }
+
+        .pag-bar {
+            padding: 12px 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: #fff;
+        }
+
+        .pag-info {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .pag-btns {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .pag-btn {
+            padding: 5px 11px;
+            border-radius: 7px;
+            border: 1px solid var(--border2);
+            background: #fff;
+            color: var(--navy);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pag-btn:hover {
+            background: var(--navy);
+            color: #fff;
+            border-color: var(--navy);
+        }
+
+        .pag-btn.active {
+            background: var(--navy);
+            color: #fff;
+            border-color: var(--navy);
+        }
+
+        .pag-btn.disabled {
+            opacity: .4;
+            pointer-events: none;
+        }
+
+        .pag-ellipsis {
+            padding: 5px 6px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 56px 24px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #cbd5e1;
+        }
+
+        .empty-state h5 {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .row-num {
+            font-size: 10px;
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .del-form {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include "navbar.html" %}
+
+    <div class="outer-wrap">
+        <div class="page-wrap">
+
+            <!-- Header -->
+            <div class="page-header">
+                <div class="ph-left">
+                    <div class="ph-icon"><i class="bi bi-clock-history"></i></div>
+                    <div>
+                        <div class="ph-title">ประวัติการประเมิน</div>
+                        <div class="ph-sub">บันทึกผลการประเมินคุณภาพน้ำทั้งหมด · สามารถค้นหา กรอง แก้ไข และลบได้</div>
+                    </div>
+                </div>
+                <a href="{{ url_for('add_data') }}" class="btn-add">
+                    <i class="bi bi-plus-circle"></i> เพิ่มข้อมูลใหม่
+                </a>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div style="margin-bottom:12px">
+                {% for category, message in messages %}
+                <div class="alert-item alert-{{ 'danger' if category=='error' else category }}">
+                    <i
+                        class="bi bi-{% if category=='success' %}check-circle-fill{% elif category=='danger' or category=='error' %}exclamation-circle-fill{% else %}info-circle-fill{% endif %}"></i>
+                    <div>{{ message }}</div>
+                    <button class="alert-close" onclick="this.closest('.alert-item').remove()">×</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <form method="GET" action="{{ url_for('history') }}" id="filterForm">
+                <div class="history-layout">
+
+                    <!-- ══ SIDEBAR FILTER (ซ้าย) ══ -->
+                    <div class="filter-sidebar">
+
+                        <div class="filter-sidebar-title">
+                            <i class="bi bi-funnel-fill"></i> กรองข้อมูล
+                        </div>
+
+                        <!-- ค้นหา -->
+                        <div class="filter-section">
+                            <label class="filter-section-label">ค้นหา</label>
+                            <div style="position:relative">
+                                <i class="bi bi-search"
+                                    style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:11px"></i>
+                                <input type="text" class="filter-input" name="q" value="{{ request.args.get('q','') }}"
+                                    placeholder="สถานที่ บ่อ ประเภท..." style="padding-left:28px"
+                                    onkeydown="if(event.key==='Enter'){this.form.submit()}">
+                            </div>
+                        </div>
+
+                        <!-- สถานะ -->
+                        <div class="filter-section">
+                            <label class="filter-section-label">สถานะ</label>
+                            {%- set cur = request.args.get('status', '') -%}
+                            <div style="display:flex;flex-direction:column;gap:5px">
+                                {% for val, icon, label, cls in [
+                                ('', 'bi-layers', 'ทั้งหมด', 'chip-all'),
+                                ('pass', 'bi-check-circle', 'ผ่านมาตรฐาน', 'chip-pass'),
+                                ('near', 'bi-exclamation-triangle', 'เฝ้าระวัง', 'chip-near'),
+                                ('fail', 'bi-x-circle', 'ต้องแก้ไข', 'chip-fail'),
+                                ('skip', 'bi-slash-circle', 'ไม่ประเมิน', 'chip-skip'),
+                                ] %}
+                                <button type="submit" name="status" value="{{ val }}"
+                                    class="chip {{ cls }} {% if cur == val %}active{% endif %}"
+                                    style="justify-content:flex-start;width:100%;text-align:left">
+                                    <i class="bi {{ icon }}"></i> {{ label }}
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- สถานที่ -->
+                        <div class="filter-section">
+                            <label class="filter-section-label">สถานที่</label>
+                            <select class="filter-select" name="location" onchange="this.form.submit()">
+                                <option value="">ทั้งหมด</option>
+                                {% for loc in all_locations %}
+                                <option value="{{ loc }}" {% if request.args.get('location')==loc %}selected{% endif %}>
+                                    {{ loc }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- ประเภทตัวอย่าง -->
+                        <div class="filter-section">
+                            <label class="filter-section-label">ประเภทตัวอย่าง</label>
+                            <select class="filter-select" name="sample_type" onchange="this.form.submit()">
+                                <option value="">ทั้งหมด</option>
+                                {% for t in ['ก่อนบำบัด','กำลังบำบัด','หลังบำบัด'] %}
+                                <option value="{{ t }}" {% if request.args.get('sample_type')==t %}selected{% endif %}>
+                                    {{ t }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- ปุ่มค้นหา -->
+                        <button type="submit"
+                            style="width:100%;padding:8px;border-radius:8px;border:none;background:var(--sky);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sarabun',sans-serif;margin-bottom:6px">
+                            <i class="bi bi-search"></i> ค้นหา
+                        </button>
+
+                        <!-- ล้างตัวกรอง -->
+                        {% if request.args.get('q') or request.args.get('location') or request.args.get('status') or
+                        request.args.get('sample_type') %}
+                        <a href="{{ url_for('history') }}"
+                            style="display:block;width:100%;padding:7px;border-radius:8px;border:1px solid var(--border2);background:#fff;color:var(--muted);font-size:12px;text-decoration:none;text-align:center">
+                            <i class="bi bi-x"></i> ล้างตัวกรอง
+                        </a>
+                        {% endif %}
+
+                        <!-- จำนวนรายการ -->
+                        {% if pagination is defined and pagination and pagination.items %}
+                        <div
+                            style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);text-align:center">
+                            <span style="font-size:11px;color:var(--muted)">พบ</span>
+                            <span style="font-size:15px;font-weight:700;color:var(--navy);display:block">{{
+                                pagination.total }}</span>
+                            <span style="font-size:11px;color:var(--muted)">รายการ</span>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                    <!-- ══ END SIDEBAR ══ -->
+
+                    <!-- ══ CONTENT (ขวา) ══ -->
+                    <div style="flex:1;min-width:0">
+
+                        <div class="card">
+                            <div class="card-head">
+                                <div class="card-head-title">
+                                    <i class="bi bi-table"></i> รายการทั้งหมด
+                                </div>
+                                {% if pagination is defined and pagination and pagination.items %}
+                                <span class="total-badge">{{ pagination.total }} รายการ</span>
+                                {% endif %}
+                            </div>
+
+                            {% if pagination is defined and pagination and pagination.items %}
+
+                            <!-- Table -->
+                            <div style="overflow-x:auto">
+                                <table class="data-table" id="dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:4%">#</th>
+                                            <th style="width:10%">วันที่</th>
+                                            <th style="width:11%">สถานที่</th>
+                                            <th style="width:13%">บ่อ</th>
+                                            <th style="width:6%">อาคาร</th>
+                                            <th style="width:8%">ประเภท</th>
+                                            <th style="width:5%">pH</th>
+                                            <th style="width:5%">BOD</th>
+                                            <th style="width:5%">COD</th>
+                                            <th style="width:5%">TSS</th>
+                                            <th style="width:8%">Score</th>
+                                            <th style="width:9%">สถานะ</th>
+                                            <th style="width:9%;text-align:center">การกระทำ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody">
+                                        {% for data in pagination.items %}
+                                        {% set status_key = 'skip' %}
+                                        {% if data.sample_type == 'หลังบำบัด' and data.evaluation %}
+                                        {% if data.evaluation.overall_status == 'Pass' %}{% set status_key = 'pass' %}
+                                        {% elif data.evaluation.overall_status == 'Near Limit' %}{% set status_key =
+                                        'near' %}
+                                        {% else %}{% set status_key = 'fail' %}{% endif %}
+                                        {% endif %}
+                                        <tr class="tr-{{ status_key }}" data-status="{{ status_key }}"
+                                            data-location="{{ data.sample_location or '' }}"
+                                            data-pond="{{ data.pond_name or '' }}"
+                                            data-type="{{ data.sample_type or '' }}" {% if data.evaluation %}
+                                            ondblclick="window.location.href='{{ url_for('view_result', result_id=data.evaluation.id) }}'"
+                                            style="cursor:pointer" title="ดับเบิลคลิกเพื่อดูผลประเมิน" {% endif %}>
+
+                                            <td><span class="row-num">{{ loop.index + (pagination.page - 1) *
+                                                    pagination.per_page }}</span></td>
+
+                                            <td>
+                                                <div class="cell-date-main">{{ data.sample_date.strftime('%d/%m/%Y') }}
+                                                </div>
+                                                <div class="cell-date-sub">{{ data.sample_date.strftime('%H:%M') }}
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                <div class="cell-location">{{ data.sample_location or '–' }}</div>
+                                            </td>
+
+                                            <td>
+                                                <div class="cell-pond">{{ data.pond_name or '–' }}</div>
+                                            </td>
+
+                                            <td>
+                                                <span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1e3a8a;border:1px solid #93c5fd"
+                                                      title="ประเภทอาคาร (ก/ข/ค/ง) ตามประกาศ ทส. 2567">
+                                                    {{ data.building_type or 'ก' }}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span class="cell-type"
+                                                    style="color:{% if data.sample_type=='หลังบำบัด' %}var(--pass){% elif data.sample_type=='ก่อนบำบัด' %}var(--near){% else %}var(--sky){% endif %}">
+                                                    {{ data.sample_type or '–' }}
+                                                </span>
+                                            </td>
+
+                                            <td><span class="cell-num">{{ "%.1f"|format(data.pH) if data.pH else '–'
+                                                    }}</span></td>
+
+                                            <td>
+                                                <span
+                                                    class="cell-num {% if data.BOD and data.BOD > 20 %}over{% elif data.BOD and data.BOD > 16 %}near{% endif %}">
+                                                    {{ "%.1f"|format(data.BOD) if data.BOD else '–' }}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span
+                                                    class="cell-num {% if data.COD and data.COD > 120 %}over{% elif data.COD and data.COD > 96 %}near{% endif %}">
+                                                    {{ "%.1f"|format(data.COD) if data.COD else '–' }}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span
+                                                    class="cell-num {% if data.TSS and data.TSS > 50 %}over{% elif data.TSS and data.TSS > 40 %}near{% endif %}">
+                                                    {{ "%.1f"|format(data.TSS) if data.TSS else '–' }}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                {% if data.evaluation %}
+                                                <span class="score-val score-{{ status_key }}">
+                                                    {{ "%.1f"|format(data.evaluation.overall_score) }}
+                                                </span>
+                                                {% else %}
+                                                <span style="color:var(--muted);font-size:11px">–</span>
+                                                {% endif %}
+                                            </td>
+
+                                            <td>
+                                                {% if data.sample_type != 'หลังบำบัด' %}
+                                                <span class="pill pill-skip"><i class="bi bi-slash-circle"></i>
+                                                    ไม่ประเมิน</span>
+                                                {% elif data.evaluation %}
+                                                {% if data.evaluation.overall_status == 'Pass' %}
+                                                <span class="pill pill-pass"><i class="bi bi-check-circle-fill"></i>
+                                                    ผ่าน</span>
+                                                {% elif data.evaluation.overall_status == 'Near Limit' %}
+                                                <span class="pill pill-near"><i
+                                                        class="bi bi-exclamation-triangle-fill"></i> ระวัง</span>
+                                                {% else %}
+                                                <span class="pill pill-fail"><i class="bi bi-x-circle-fill"></i>
+                                                    เกิน</span>
+                                                {% endif %}
+                                                {% else %}
+                                                <span class="pill pill-skip"><i class="bi bi-hourglass"></i> รอ</span>
+                                                {% endif %}
+                                            </td>
+
+                                            <td style="text-align:center">
+                                                <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap">
+                                                    <a href="{{ url_for('edit_data', water_data_id=data.id) }}"
+                                                        class="btn-sm-action btn-edit">
+                                                        <i class="bi bi-pencil"></i> แก้ไข
+                                                    </a>
+                                                    {% if data.evaluation %}
+                                                    <a href="{{ url_for('export_result_pdf', result_id=data.evaluation.id) }}"
+                                                        class="btn-sm-action"
+                                                        style="background:var(--fail-bg);border-color:var(--fail-bd);color:var(--fail)"
+                                                        title="Export Excel ผลประเมินครั้งนี้" download>
+                                                        <i class="bi bi-file-earmark-excel-fill"></i> Excel
+                                                    </a>
+                                                    {% endif %}
+                                                    <form class="del-form" method="POST"
+                                                        action="{{ url_for('delete_data', water_data_id=data.id, page=pagination.page) }}"
+                                                        onsubmit="return confirmDelete(this)">
+                                                        <button type="submit" class="btn-sm-action btn-del">
+                                                            <i class="bi bi-trash"></i> ลบ
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            {% if pagination.pages > 1 %}
+                            <div class="pag-bar">
+                                <div class="pag-info">
+                                    หน้า {{ pagination.page }} จาก {{ pagination.pages }} · {{ pagination.total }}
+                                    รายการ
+                                </div>
+                                <div class="pag-btns">
+                                    <a class="pag-btn {% if not pagination.has_prev %}disabled{% endif %}"
+                                        href="{{ url_for('history', page=pagination.prev_num, q=request.args.get('q',''), status=request.args.get('status',''), location=request.args.get('location',''), sample_type=request.args.get('sample_type','')) if pagination.has_prev else '#' }}">
+                                        <i class="bi bi-chevron-left"></i> ก่อนหน้า
+                                    </a>
+
+                                    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1,
+                                    right_current=2) %}
+                                    {% if page_num %}
+                                    <a class="pag-btn {% if page_num == pagination.page %}active{% endif %}"
+                                        href="{{ url_for('history', page=page_num, q=request.args.get('q',''), status=request.args.get('status',''), location=request.args.get('location',''), sample_type=request.args.get('sample_type','')) }}">
+                                        {{ page_num }}
+                                    </a>
+                                    {% else %}
+                                    <span class="pag-ellipsis">…</span>
+                                    {% endif %}
+                                    {% endfor %}
+
+                                    <a class="pag-btn {% if not pagination.has_next %}disabled{% endif %}"
+                                        href="{{ url_for('history', page=pagination.next_num, q=request.args.get('q',''), status=request.args.get('status',''), location=request.args.get('location',''), sample_type=request.args.get('sample_type','')) if pagination.has_next else '#' }}">
+                                        ถัดไป <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% else %}
+                            <!-- Empty State -->
+                            <div class="empty-state">
+                                <i class="bi bi-inbox"></i>
+                                <h5>ยังไม่มีข้อมูล</h5>
+                                <p>เริ่มต้นโดยเพิ่มข้อมูลคุณภาพน้ำ หรืออัปโหลดไฟล์ Excel</p>
+                                <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+                                    <a href="{{ url_for('add_data') }}" class="btn-add">
+                                        <i class="bi bi-plus-circle"></i> เพิ่มข้อมูล
+                                    </a>
+                                    <a href="{{ url_for('upload_data') }}" class="btn-add"
+                                        style="background:var(--navy)">
+                                        <i class="bi bi-upload"></i> อัปโหลด Excel
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+                    <!-- ══ END CONTENT ══ -->
+
+                </div>
+                <!-- ══ END HISTORY LAYOUT ══ -->
+
+            </form>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmDelete(form) {
+            return confirm('ยืนยันลบข้อมูลนี้?\nการลบจะย้อนกลับไม่ได้');
+        }
+    </script>
+</body>
+
+</html>
